@@ -10,19 +10,18 @@ class FN_IF extends instruccion_1.Instruccion {
         this.bloqueIf = bloqueIf;
         this.bloqueElse = bloqueElse;
     }
-    interpretar(consola) {
-        const condicion = this.condicion.interpretar();
+    interpretar(entorno, consola) {
+        const condicion = this.condicion.interpretar(entorno);
         if (condicion.tipo != resultado_1.TipoDato.BOOLEANO)
             throw Error("La condición no es booleana");
         if (condicion.valor) {
-            this.bloqueIf.interpretar(consola);
+            return this.bloqueIf.interpretar(entorno, consola);
         }
         else {
             console.log("else");
             console.log({ else: this.bloqueElse });
-            this.bloqueElse.interpretar(consola);
+            return this.bloqueElse.interpretar(entorno, consola);
         }
-        return null;
     }
 }
 exports.FN_IF = FN_IF;

@@ -1,8 +1,8 @@
 import { Expresion } from "../Abstract/expresion";
 import { TipoDato } from "../Abstract/resultado";
 import { Instruccion } from "../Abstract/instruccion";
-
-export class Print extends Instruccion{
+import { Environment } from "../Symbol/Evironment";
+export class Cout extends Instruccion{
     private expresion;
     private salto;
     constructor(expresion:Expresion,salto:string,linea:number,columna:number){
@@ -10,16 +10,16 @@ export class Print extends Instruccion{
         this.expresion=expresion
         this.salto = salto
     }
-    public interpretar(consola: string[]): null {
-        const res = this.expresion.interpretar()
+    public interpretar(entorno : Environment,consola: string[]): null {
+        const res = this.expresion.interpretar(entorno)
         if (res.tipo == TipoDato.BOOLEANO){
-            res.valor == res.valor?"true":"false"
+            res.valor == res.valor?true:false;
         }
         if (this.salto){
-        consola.push(res.valor+"\n")
+        consola.push(res.valor+"\n");
         }
         else{
-        consola.push(res.valor+"")
+        consola.push(res.valor+"");
         }
         return null
     }

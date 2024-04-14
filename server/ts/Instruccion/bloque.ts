@@ -21,10 +21,6 @@ export class Bloque extends Instruccion{
             };
  
         }
-
-        this.instrucciones.forEach(instruccion => {
-            instruccion.interpretar(entorno,consola)
-       });
        return null;
     }
 }

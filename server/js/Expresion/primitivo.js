@@ -25,6 +25,9 @@ class Primitivo extends expresion_1.Expresion {
         else if (resultado_1.TipoDato.STRING == this.tipo) {
             return { valor: this.exp1.toString(), tipo: this.tipo };
         }
+        else if (resultado_1.TipoDato.CHAR == this.tipo) {
+            return { valor: this.exp1.charCodeAt(0), tipo: this.tipo };
+        }
         // en caso que no sea ninguno
         return { valor: null, tipo: resultado_1.TipoDato.NULO };
     }

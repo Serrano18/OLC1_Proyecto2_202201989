@@ -12,19 +12,19 @@ export class Environment{
         this.variables = new Map();
         this.funciones = new Map();
     }
-    public guardar(id: string, valor: any, tipo: TipoDato){ //UNICAMENTE PARA DECLARAR
+    public guardar(id: string, valor: any, tipo: TipoDato,tipo2:string,fila:number,columna:number){ //UNICAMENTE PARA DECLARAR
         let env : Environment | null = this;
             if(env.variables.has(id)){
                 throw Error("Variable ya declarada anteriormente");
             }
-        this.variables.set(id, new Symbol( id, tipo,valor));
+        this.variables.set(id, new Symbol( id, tipo,valor,tipo2,fila,columna));
     }
 
-    public editarVariable(id: string, valor: any, tipo: TipoDato){ //UNICAMENTE PARA DECLARAR
+    public editarVariable(id: string, valor: any, tipo: TipoDato,tipo2:string,fila:number,columna:number){ //UNICAMENTE PARA DECLARAR
         let env : Environment | null = this;
         while(env != null){
             if(env.variables.has(id)){
-                env.variables.set(id, new Symbol( id, tipo,valor));
+                env.variables.set(id, new Symbol( id, tipo,valor,tipo2,fila,columna));
                 return;
             }
             env = env.anterior;

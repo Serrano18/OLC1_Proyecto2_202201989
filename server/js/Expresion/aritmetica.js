@@ -12,10 +12,10 @@ class Aritmetica extends expresion_1.Expresion {
         this.exp1 = e1;
         this.exp2 = e2;
     }
-    interpretar() {
+    interpretar(entorno) {
         // Ejecutamos los noterminales
-        const resultadoIzq = this.exp1.interpretar();
-        const resultadoDer = this.exp2.interpretar();
+        const resultadoIzq = this.exp1.interpretar(entorno);
+        const resultadoDer = this.exp2.interpretar(entorno);
         // Lógica del intérprete
         // Comparamos el tipo de operación
         if (this.Operacion == resultado_1.OpAritmetica.SUMA) {

@@ -1,18 +1,22 @@
 import { Expresion } from "./Abstract/expresion";
 import { Instruccion } from "./Abstract/instruccion";
-
+import { Environment } from "./Symbol/Evironment";   
 export class AST {
     public instrucciones: Instruccion[]
     public consola:string[]
+    public entornoglobal : Environment
+
     constructor(instrucciones: Instruccion[]){
         this.instrucciones = instrucciones
         this.consola = []
+        this.entornoglobal = new Environment(null)
     }
 
     public Ejecutar(){
+        
        // Primera pasada
        this.instrucciones.forEach(instruccion => {
-            instruccion.interpretar(this.consola)
+            instruccion.interpretar(this.entornoglobal,this.consola)
        });
     }
     public getConsola(){

@@ -21,7 +21,7 @@ app.use(express.json());
 app.post('/interpretar', (req, res) => {
     const contenido = req.body.contenido;
     console.log(contenido);
-    const interpretado = interprete(contenido);
+    const interpretado = interprete(contenido.toLowerCase());
     res.json({ resultado: interpretado });
 });
 app.get('/', (req, res) => {

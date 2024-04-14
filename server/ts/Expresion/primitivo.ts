@@ -22,6 +22,8 @@ export class Primitivo extends Expresion{
             return {valor:this.exp1.toLowerCase()=="true"?true:false, tipo:this.tipo}
         }else if(TipoDato.STRING == this.tipo) {
             return {valor:this.exp1.toString(), tipo:this.tipo}
+        }else if(TipoDato.CHAR == this.tipo){
+            return {valor:this.exp1.charCodeAt(0), tipo:this.tipo}
         }
 
         // en caso que no sea ninguno
