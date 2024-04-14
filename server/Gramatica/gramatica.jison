@@ -20,8 +20,10 @@
     const {Valorid} = require("../js/Expresion/valorid");
     const {Avariable} = require("../js/Instruccion/actualizarvalor")
     const {Length}=require("../js/Expresion/length");
-%}  
+    const {Break} = require("../js/Instruccion/break");
+    const {Continue} = require("../js/Instruccion/continue");
 
+%}
 %lex // Inicia parte léxica
 
 %options case-insensitive
@@ -61,13 +63,17 @@
 
 "std::tostring"              return 'TOSTRING';
 //Funcion c_str
-"c_str"                 return 'CSTR'
+"c_str"                 return 'CSTR';
 //Casteo ya esta todo
 //ternario
-"?"                     return 'SADM'
+"?"                     return 'SADM';
 //iNCREMENTO Y DECREMENTO 
-"++"                    return 'MASD'
-"--"                    return 'MEND'
+"++"                    return 'MASD';
+"--"                    return 'MEND';
+//cICLO DO-WHILE
+"do"                    return 'DO';
+"while"                 return 'WHILE';
+
 // signos
 "("                     return 'PARIZQ';
 ")"                     return 'PARDER';
@@ -138,6 +144,12 @@ instruccion: fn_cout PYC                { $$ = $1;}
             |fn_dvariables PYC          { $$ = $1;}
             |subebaja  PYC              { $$ = $1;}
             |avariables PYC             { $$ = $1;}
+            |fn_dowhile PYC             { $$ = $1;}
+            |BREAK PYC                  {$$ = new Break(@1.first_line,@1.first_column);}
+            |CONTINUE PYC               {$$ = new Continue(@1.first_line,@1.first_column);}  
+;
+fn_dowhile
+        : DO bloque WHILE PARIZQ expresion PARDER 
 ;
 // Para sitetisar un dato, se utiliza $$
 expresion: RES expresion %prec UMINUS                   { $$ = new Aritmetica(new Primitivo(0,0,0),$2,OpAritmetica.RESTA,@1.first_line,@1.first_column);} 
@@ -203,13 +215,15 @@ findeclaracion
         ;
 
 //PARA PODER IMPRIMIR
-fn_cout: COUT '<<' expresion  { $$ = new Cout($3,false,@1.first_line,@1.first_column)}
+fn_cout: COUT '<<' expresion  { $$ = new Cout($3,false,@1.first_line,@1.first_column);}
         | COUT '<<' expresion '<<' SALTOCOUT { $$ = new Cout($3,true,@1.first_line,@1.first_column)}
 ;
+
+
 // Bloque de instrucciones
 bloque
         : LLAVEIZQ instrucciones LLAVEDER      { $$= new Bloque($2);}
-        | LLAVEIZQ  LLAVEDER                    { $$ = new Bloque([]) }
+        | LLAVEIZQ  LLAVEDER                    { $$ = new Bloque([]); }
 ;
 // Sentencia de control
 fn_if
