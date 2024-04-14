@@ -3,7 +3,7 @@ import { TipoDato } from "../Abstract/resultado";
 import { Bloque } from "./bloque";
 import { Instruccion } from "../Abstract/instruccion";
 import { Environment } from "../Symbol/Evironment";
-export class Dowhile extends Instruccion{
+export class While extends Instruccion{
     condicion: Expresion
     bloquedo: Bloque
 
@@ -18,7 +18,7 @@ export class Dowhile extends Instruccion{
         if(condicion.tipo != TipoDato.BOOLEANO){
             throw new Error("EL CICLO NO VA A FUNCIONAR CONDICION ERRONEA");
         }
-        do{
+        while(condicion.valor){
 
             const bloquedo = this.bloquedo.interpretar(entorno,consola);
             if(bloquedo != null){
@@ -34,6 +34,6 @@ export class Dowhile extends Instruccion{
             if(condicion.tipo != TipoDato.BOOLEANO){
                 throw new Error("EL CICLO NO VA A FUNCIONAR CONDICION ERRONEA");
             }
-        }while(condicion.valor);
+        }
     }
 }

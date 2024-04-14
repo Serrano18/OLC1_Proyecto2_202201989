@@ -7,6 +7,7 @@ class Continue extends instruccion_1.Instruccion {
         super(linea, columna);
     }
     interpretar(environment, consola) {
+        return 'continue';
     }
 }
 exports.Continue = Continue;

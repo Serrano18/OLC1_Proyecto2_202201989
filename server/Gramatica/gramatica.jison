@@ -22,6 +22,9 @@
     const {Length}=require("../js/Expresion/length");
     const {Break} = require("../js/Instruccion/break");
     const {Continue} = require("../js/Instruccion/continue");
+    const {Dowhile} = require("../js/Instruccion/dowhile");
+    const {While} = require("../js/Instruccion/while");
+
 
 %}
 %lex // Inicia parte léxica
@@ -32,9 +35,9 @@
 //Palabras reservadas
 \s+                                 //ignora espacios
 [\t\r\n\f]+    //ignora espacios
-// Comentarios son con //
-"//"~\n         //ignora comentarios de una linea
-"/""*"~"*""/"   //ignora comentarios multilinea
+"//".*           {/*Comentario de una linea*/}     
+[/][*][^]*[*]+([^/*][^*]*[*]+)*[/]        /* Ignorar comentarios multilinea */
+
 [0-9]+("."[0-9]+)\b     return 'DOUBLE';
 [0-9]+\b                return 'NUMBER';
 
@@ -49,22 +52,14 @@
 "cout"                  return 'COUT';
 "<<"                    return '<<';
 "endl"                  return 'SALTOCOUT';
-//Funcion tolower
-"tolower"              return 'TOLOWER';
-//funcion toupper
-"toupper"              return 'TOUPPER';
-//funcion round
-"round"                return 'ROUND';
-//funcion length
+//Funcion tolower,toupper,round,length,TypeOf,ToString,c_str
+"tolower"               return 'TOLOWER';
+"toupper"               return 'TOUPPER';
+"round"                 return 'ROUND';
 "length"                return 'LENGHT';
-//funcionTypeOf
 "typeof"                return 'TYPEOF';
-//ToString
-
-"std::tostring"              return 'TOSTRING';
-//Funcion c_str
+"std::tostring"         return 'TOSTRING';
 "c_str"                 return 'CSTR';
-//Casteo ya esta todo
 //ternario
 "?"                     return 'SADM';
 //iNCREMENTO Y DECREMENTO 
@@ -73,6 +68,10 @@
 //cICLO DO-WHILE
 "do"                    return 'DO';
 "while"                 return 'WHILE';
+//cierres
+"break"                 return 'BREAK';
+"continue"              return 'CONTINUE';
+"return"                return 'RETURN';
 
 // signos
 "("                     return 'PARIZQ';
@@ -86,6 +85,8 @@
 "."                     return 'PF';
 ","                     return 'CM';
 ":"                     return 'DP';
+"%"                     return 'MOD';
+"pow"                   return 'POW';
 // Relacionales
 "=="                    return 'IGUAL';
 "!="                    return 'DISTINTO';
@@ -99,17 +100,17 @@
 "||"                    return 'OR';
 "!"                     return 'NOT';
 // Cadenas             "asdfasdfasf"
-\"[^\"]*\"				{ yytext = yytext.substr(1,yyleng-2); return 'CADENA'; }
-\'([^\']|['\n']|[\t]|[\r]|[\u])\'         { yytext = yytext.substr(1,yyleng-2); return 'CARACTER'; }
-"true"                  {return 'TRUE';}
-"false"                 {return 'FALSE';}
-"int"|"double"|"bool"|"char"|"std::string"   {return 'TIPOD';}
-([a-z])[a-z0-9_]*                              {return 'ID';}
+[\"][^\\\"]*([\\][\\\"ntr][^\\\"]*)*[\"]	{ yytext = yytext.substr(1,yyleng-2); return 'CADENA'; }
+\'([^\']|['\n']|[\t]|[\r]|[\u])\'               { yytext = yytext.substr(1,yyleng-2); return 'CARACTER'; }
+"true"                                          {return 'TRUE';}
+"false"                                         {return 'FALSE';}
+"int"|"double"|"bool"|"char"|"std::string"      {return 'TIPOD';}
+([a-z])[a-z0-9_]*                               {return 'ID';}
 
 
 <<EOF>>                 return 'EOF';
 
-.					   {    console.log(yylloc.first_line, yylloc.first_column,'Lexico',yytext);    }
+.	        			   {    console.log(yylloc.first_line, yylloc.first_column,'Lexico',yytext);    }
 
 // Finaliza parte de Léxica
 /lex
@@ -123,7 +124,8 @@
 %left 'AND'
 %left 'IGUAL','DISTINTO','MENOR','MENORIGUAL','MAYOR','MAYORIGUAL'
 %left 'MAS', 'RES'
-%left 'MUL','DIV'
+%left 'MUL','DIV','MOD'
+%nonassoc 'POW'
 %right UMINUS 
 
 // Inicio de gramática
@@ -137,19 +139,27 @@ ini : instrucciones EOF { return new AST($1);}
 
 instrucciones: instrucciones instruccion    {  $1.push($2); $$ = $1;}
             | instruccion                   { $$ =  [$1];}
+            
 ;
 
-instruccion: fn_cout PYC                { $$ = $1;}
+instruccion: 
+            fn_cout PYC                { $$ = $1;}
             | fn_if                     { $$ = $1;}
             |fn_dvariables PYC          { $$ = $1;}
             |subebaja  PYC              { $$ = $1;}
             |avariables PYC             { $$ = $1;}
             |fn_dowhile PYC             { $$ = $1;}
+            |fn_while                   { $$ = $1;}
             |BREAK PYC                  {$$ = new Break(@1.first_line,@1.first_column);}
             |CONTINUE PYC               {$$ = new Continue(@1.first_line,@1.first_column);}  
+            //|error PYC                  {console.log("Error sintactico en la Linea: " + this._$.first_line + " en la Columna: " + this._$.first_column);}
+            ;
+            
+fn_while
+        : WHILE PARIZQ expresion PARDER bloque {$$ = new While($3,$5,@1.first_line,@1.first_column);}
 ;
 fn_dowhile
-        : DO bloque WHILE PARIZQ expresion PARDER 
+        : DO bloque WHILE PARIZQ expresion PARDER {$$ = new Dowhile($5,$2,@1.first_line,@1.first_column);}
 ;
 // Para sitetisar un dato, se utiliza $$
 expresion: RES expresion %prec UMINUS                   { $$ = new Aritmetica(new Primitivo(0,0,0),$2,OpAritmetica.RESTA,@1.first_line,@1.first_column);} 
@@ -157,6 +167,8 @@ expresion: RES expresion %prec UMINUS                   { $$ = new Aritmetica(ne
         | expresion RES expresion                       { $$ = new Aritmetica($1,$3,OpAritmetica.RESTA,@2.first_line,@2.first_column);}
         | expresion MUL expresion                       { $$ =  new Aritmetica($1,$3,OpAritmetica.PRODUCTO,@2.first_line,@2.first_column);}
         | expresion DIV expresion                       { $$ =  new Aritmetica($1,$3,OpAritmetica.DIVISION,@2.first_line,@2.first_column);}
+        | expresion MOD expresion                       {$$ =  new Aritmetica($1,$3,OpAritmetica.MOD,@2.first_line,@2.first_column);}
+        | POW PARIZQ expresion CM expresion PARDER      {$$ =  new Aritmetica($3,$5,OpAritmetica.POW,@1.first_line,@1.first_column);}
         | relacionales                                  { $$ = $1;}
         | logicos                                       { $$ = $1;}
         | NUMBER                                        { $$ = new Primitivo($1,TipoDato.NUMBER,@1.first_line,@1.first_column); }
@@ -184,7 +196,7 @@ avariables
 subebaja
         : ID MASD                                       {$$ = new Subebaja($1,true,@1.first_line,@1.first_column);}
         | ID MEND                                       {$$ = new Subebaja($1,false,@1.first_line,@1.first_column);}
-        ;
+;
 relacionales
         : expresion IGUAL expresion       { $$ =  new Relacional($1,$3,OpRelacional.IGUAL,@2.first_line,@2.first_column);}
         | expresion DISTINTO expresion    { $$ =  new Relacional($1,$3,OpRelacional.DISTINTO,@2.first_line,@2.first_column);}
@@ -202,17 +214,16 @@ logicos
 //Declaracion variables
 fn_dvariables:
         TIPOD listavar findeclaracion   {$$ = new Dvariables($1,$2,$3,@1.first_line,@1.first_column);}
-        ;
-
+;
 listavar
         :listavar CM ID                {$1.push($3); $$ =$1;}
         |ID                            {$$ = [$1];}
-        ;
+;
 
 findeclaracion
         :                            {$$=null;}
         | ASIGNACION expresion       {$$ = $2;}
-        ;
+;
 
 //PARA PODER IMPRIMIR
 fn_cout: COUT '<<' expresion  { $$ = new Cout($3,false,@1.first_line,@1.first_column);}

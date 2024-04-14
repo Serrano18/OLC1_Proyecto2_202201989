@@ -22,10 +22,10 @@ app.post('/interpretar', (req, res) => {
     const contenido = req.body.contenido;
     console.log(contenido);
     const interpretado = interprete(contenido.toLowerCase());
-    res.json({ resultado: interpretado });
+    res.send(interpretado);
 });
 app.get('/', (req, res) => {
-    res.send("Hola mundo");
+    res.send("Esta Funcionando");
 });
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);

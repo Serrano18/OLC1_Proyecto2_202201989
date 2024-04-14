@@ -55,6 +55,24 @@ export class Aritmetica extends Expresion{
              throw Error("tipo dato no valido")
            }
             return {valor: resultadoIzq.valor/resultadoDer.valor,tipo:dominante}
+        } else if (this.Operacion == OpAritmetica.MOD){
+            const dominante = MODULO[resultadoIzq.tipo][resultadoDer.tipo] 
+            switch(dominante){
+                case TipoDato.DOUBLE:
+                    return {valor:resultadoIzq.valor % resultadoDer.valor,tipo:TipoDato.DOUBLE}
+                default:
+                    throw Error(`Error: No se puede modular ${TipoDato[resultadoIzq.tipo]} con ${TipoDato[resultadoDer.tipo]}`)
+            }
+        } else if(this,this.Operacion == OpAritmetica.POW){
+                const dominante = POTENCIA[resultadoIzq.tipo][resultadoDer.tipo]
+                switch(dominante){
+                    case TipoDato.NUMBER:
+                        return {valor:Math.pow(resultadoIzq.valor,resultadoDer.valor),tipo:TipoDato.NUMBER}
+                    case TipoDato.DOUBLE:
+                        return {valor:Math.pow(resultadoIzq.valor,resultadoDer.valor),tipo:TipoDato.DOUBLE}
+                    default:
+                        throw Error(`Error: No se puede potenciar ${TipoDato[resultadoIzq.tipo]} con ${TipoDato[resultadoDer.tipo]}`)
+                }
         }
         return {valor:null,tipo:TipoDato.NULO}
     }
@@ -88,5 +106,20 @@ const DIVISION = [
     [TipoDato.DOUBLE ,TipoDato.DOUBLE ,TipoDato.NULO ,TipoDato.DOUBLE ,TipoDato.NULO ],
     [TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
     [TipoDato.DOUBLE ,TipoDato.DOUBLE ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
+    [TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
+]
+const MODULO = [
+    [TipoDato.DOUBLE ,TipoDato.DOUBLE ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
+    [TipoDato.DOUBLE ,TipoDato.DOUBLE ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
+    [TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
+    [TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
+    [TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
+]
+
+const POTENCIA = [
+    [TipoDato.NUMBER ,TipoDato.DOUBLE ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
+    [TipoDato.DOUBLE ,TipoDato.DOUBLE ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
+    [TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
+    [TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
     [TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
 ]

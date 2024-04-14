@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Dowhile = void 0;
+exports.While = void 0;
 const resultado_1 = require("../Abstract/resultado");
 const instruccion_1 = require("../Abstract/instruccion");
-class Dowhile extends instruccion_1.Instruccion {
+class While extends instruccion_1.Instruccion {
     constructor(condicion, bloquedo, linea, columna) {
         super(linea, columna);
         this.condicion = condicion;
@@ -14,7 +14,7 @@ class Dowhile extends instruccion_1.Instruccion {
         if (condicion.tipo != resultado_1.TipoDato.BOOLEANO) {
             throw new Error("EL CICLO NO VA A FUNCIONAR CONDICION ERRONEA");
         }
-        do {
+        while (condicion.valor) {
             const bloquedo = this.bloquedo.interpretar(entorno, consola);
             if (bloquedo != null) {
                 if (bloquedo == "continue") {
@@ -31,7 +31,7 @@ class Dowhile extends instruccion_1.Instruccion {
             if (condicion.tipo != resultado_1.TipoDato.BOOLEANO) {
                 throw new Error("EL CICLO NO VA A FUNCIONAR CONDICION ERRONEA");
             }
-        } while (condicion.valor);
+        }
     }
 }
-exports.Dowhile = Dowhile;
+exports.While = While;

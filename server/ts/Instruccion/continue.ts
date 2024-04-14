@@ -9,7 +9,7 @@ export class Continue extends Instruccion{
     }
 
     public  interpretar(environment : Environment,consola:string[]):any{
-
+        return 'continue';
     }
     
 }

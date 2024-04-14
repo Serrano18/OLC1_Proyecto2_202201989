@@ -7,6 +7,7 @@ class Break extends instruccion_1.Instruccion {
         super(linea, columna);
     }
     interpretar(environment, consola) {
+        return "break";
     }
 }
 exports.Break = Break;

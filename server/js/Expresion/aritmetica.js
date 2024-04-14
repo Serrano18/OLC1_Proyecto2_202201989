@@ -57,6 +57,26 @@ class Aritmetica extends expresion_1.Expresion {
             }
             return { valor: resultadoIzq.valor / resultadoDer.valor, tipo: dominante };
         }
+        else if (this.Operacion == resultado_1.OpAritmetica.MOD) {
+            const dominante = MODULO[resultadoIzq.tipo][resultadoDer.tipo];
+            switch (dominante) {
+                case resultado_1.TipoDato.DOUBLE:
+                    return { valor: resultadoIzq.valor % resultadoDer.valor, tipo: resultado_1.TipoDato.DOUBLE };
+                default:
+                    throw Error(`Error: No se puede modular ${resultado_1.TipoDato[resultadoIzq.tipo]} con ${resultado_1.TipoDato[resultadoDer.tipo]}`);
+            }
+        }
+        else if (this, this.Operacion == resultado_1.OpAritmetica.POW) {
+            const dominante = POTENCIA[resultadoIzq.tipo][resultadoDer.tipo];
+            switch (dominante) {
+                case resultado_1.TipoDato.NUMBER:
+                    return { valor: Math.pow(resultadoIzq.valor, resultadoDer.valor), tipo: resultado_1.TipoDato.NUMBER };
+                case resultado_1.TipoDato.DOUBLE:
+                    return { valor: Math.pow(resultadoIzq.valor, resultadoDer.valor), tipo: resultado_1.TipoDato.DOUBLE };
+                default:
+                    throw Error(`Error: No se puede potenciar ${resultado_1.TipoDato[resultadoIzq.tipo]} con ${resultado_1.TipoDato[resultadoDer.tipo]}`);
+            }
+        }
         return { valor: null, tipo: resultado_1.TipoDato.NULO };
     }
 }
@@ -87,5 +107,19 @@ const DIVISION = [
     [resultado_1.TipoDato.DOUBLE, resultado_1.TipoDato.DOUBLE, resultado_1.TipoDato.NULO, resultado_1.TipoDato.DOUBLE, resultado_1.TipoDato.NULO],
     [resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
     [resultado_1.TipoDato.DOUBLE, resultado_1.TipoDato.DOUBLE, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
+    [resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
+];
+const MODULO = [
+    [resultado_1.TipoDato.DOUBLE, resultado_1.TipoDato.DOUBLE, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
+    [resultado_1.TipoDato.DOUBLE, resultado_1.TipoDato.DOUBLE, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
+    [resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
+    [resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
+    [resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
+];
+const POTENCIA = [
+    [resultado_1.TipoDato.NUMBER, resultado_1.TipoDato.DOUBLE, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
+    [resultado_1.TipoDato.DOUBLE, resultado_1.TipoDato.DOUBLE, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
+    [resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
+    [resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
     [resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
 ];

@@ -10,7 +10,7 @@ export class Break extends Instruccion{
 
 
     public  interpretar(environment : Environment,consola:string[]):any{
-
+        return "break";
     }
     
 }

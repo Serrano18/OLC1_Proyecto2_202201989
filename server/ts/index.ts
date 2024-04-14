@@ -1,4 +1,5 @@
 import { Request, Response } from "express"
+import { exec } from "child_process"
 
 const parser = require("../Gramatica/gramatica")
 
@@ -26,11 +27,12 @@ app.post('/interpretar', (req:Request, res:Response) => {
   const contenido = req.body.contenido
   console.log(contenido)
   const interpretado = interprete(contenido.toLowerCase())
-  res.json({resultado:interpretado})
+  res.send(interpretado)
 })
 
 app.get('/', (req:Request, res:Response) => {
-    res.send("Hola mundo")
+
+    res.send("Esta Funcionando")
 })
 
 app.listen(port, () => {
