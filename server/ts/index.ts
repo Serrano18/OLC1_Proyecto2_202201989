@@ -1,16 +1,21 @@
 import { Request, Response } from "express"
 import { exec } from "child_process"
-
+import { errores } from './Errores';
+import { Error_ } from "./Error";
+import { globalMap,vaciarGlobalMap} from "./Tablasimbolos";
 const parser = require("../Gramatica/gramatica")
 
 function interprete(contenido:string){
     try {
+        vaciarGlobalMap()
         const ast = parser.parse(contenido)
         ast.Ejecutar()    
         console.log("Análisis finalizado 2")
+        console.log(globalMap)
         return ast.getConsola()
-    } catch (error) {
-       console.error(error) 
+    } catch (e) {
+        return e;
+    
     }
 
 }

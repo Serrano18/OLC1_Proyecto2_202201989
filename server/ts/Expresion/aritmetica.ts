@@ -38,6 +38,9 @@ export class Aritmetica extends Expresion{
 
         } else if (this.Operacion == OpAritmetica.RESTA){
            const dominante = RESTAS[resultadoIzq.tipo][resultadoDer.tipo] 
+
+           if(resultadoIzq.tipo == TipoDato.BOOLEANO) resultadoIzq.valor = resultadoIzq.valor?1:0
+           if(resultadoDer.tipo == TipoDato.BOOLEANO) resultadoDer.valor = resultadoDer.valor?1:0
            if (dominante == TipoDato.NULO){
              throw Error("tipo dato no valido")
            }
@@ -45,18 +48,23 @@ export class Aritmetica extends Expresion{
 
         } else if (this.Operacion == OpAritmetica.PRODUCTO){
            const dominante = PRODUCTO[resultadoIzq.tipo][resultadoDer.tipo] 
+
+       
            if (dominante == TipoDato.NULO){
              throw Error("tipo dato no valido")
            }
             return {valor: resultadoIzq.valor*resultadoDer.valor,tipo:dominante}
         } else if (this.Operacion == OpAritmetica.DIVISION){
            const dominante = DIVISION[resultadoIzq.tipo][resultadoDer.tipo] 
+           
+           
            if (dominante == TipoDato.NULO){
              throw Error("tipo dato no valido")
            }
             return {valor: resultadoIzq.valor/resultadoDer.valor,tipo:dominante}
         } else if (this.Operacion == OpAritmetica.MOD){
             const dominante = MODULO[resultadoIzq.tipo][resultadoDer.tipo] 
+       
             switch(dominante){
                 case TipoDato.DOUBLE:
                     return {valor:resultadoIzq.valor % resultadoDer.valor,tipo:TipoDato.DOUBLE}
@@ -123,3 +131,7 @@ const POTENCIA = [
     [TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
     [TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ,TipoDato.NULO ],
 ]
+function convertir(tipoR:Resultado):void{
+    if(tipoR.tipo==TipoDato.BOOLEANO) tipoR.valor = tipoR.valor?1:0;
+    if(tipoR.tipo==TipoDato.CHAR) tipoR.valor = tipoR.valor.charCodeAt(0);
+}

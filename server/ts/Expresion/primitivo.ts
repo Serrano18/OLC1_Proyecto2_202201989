@@ -23,7 +23,7 @@ export class Primitivo extends Expresion{
         }else if(TipoDato.STRING == this.tipo) {
             return {valor:this.exp1.toString(), tipo:this.tipo}
         }else if(TipoDato.CHAR == this.tipo){
-            return {valor:this.exp1.charCodeAt(0), tipo:this.tipo}
+            return {valor:this.exp1, tipo:this.tipo}
         }
 
         // en caso que no sea ninguno

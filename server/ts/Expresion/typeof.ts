@@ -9,20 +9,18 @@ export class Typeof extends Expresion {
     public interpretar(entorno : Environment) : Resultado{
         const value = this.valor.interpretar(entorno)
         if (value.tipo == TipoDato.NUMBER ) {
-            if (this.isFloat(value)) {
-                return { valor: 'double', tipo: TipoDato.STRING };
-            } else {
-                return { valor: 'number', tipo: TipoDato.STRING };
-            }
+           
+           return { valor: 'int', tipo: TipoDato.STRING };
+            
         } else if (value.tipo == TipoDato.BOOLEANO) {
-            return { valor: 'boolean', tipo: TipoDato.STRING };
+            return { valor: 'bool', tipo: TipoDato.STRING };
         } else if (value.tipo == TipoDato.STRING ) { 
-            if (value.valor.length == 1) {
-                return { valor: 'char', tipo: TipoDato.STRING };
-            } else {
-                return { valor: 'string', tipo: TipoDato.STRING };
-            }
-        } else if (Array.isArray(value.valor)) {
+                return { valor: 'std::string', tipo: TipoDato.STRING }; 
+        } else if (value.tipo == TipoDato.DOUBLE ) { 
+            return { valor: 'double', tipo: TipoDato.STRING }; 
+        }else if (value.tipo == TipoDato.CHAR ) { 
+            return { valor: 'char', tipo: TipoDato.STRING }; 
+        }else if (Array.isArray(value.valor)) {
             return { valor: 'array', tipo: TipoDato.STRING };
         } else {
             throw new Error('Error: Saber que tipo es');

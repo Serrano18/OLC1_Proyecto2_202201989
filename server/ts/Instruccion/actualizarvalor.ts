@@ -18,7 +18,8 @@ export class Avariable extends Instruccion{
         if(this.valor != null){
             const valor = this.valor.interpretar(entorno);
             if(value.type == valor.tipo){
-                entorno.editarVariable(this.id,valor.valor,valor.tipo,"variable",this.line,this.column);
+                entorno.editarVariable(this.id,valor.valor,valor.tipo,"variable",value.fila,value.columna);
+                entorno.editarVariableTablaSimbolos(this.id,valor.valor,valor.tipo,"Variable",entorno,value.fila,value.columna);
             }else{
                 throw new Error(`Error:  ${value.type} no es valido`);
             }

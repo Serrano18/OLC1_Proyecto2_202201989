@@ -14,6 +14,7 @@
     const {Round} = require("../js/Expresion/round");
     const {Tostring} = require("../js/Expresion/tostring");
     const {Ternario} = require("../js/Expresion/ternario");
+    const {Typeof} = require("../js/Expresion/typeof");
     const {Casteo} = require("../js/Expresion/casteos");
     const {Dvariables} = require("../js/Instruccion/dvariables");
     const {Subebaja} = require("../js/Instruccion/increydecre");
@@ -24,8 +25,13 @@
     const {Continue} = require("../js/Instruccion/continue");
     const {Dowhile} = require("../js/Instruccion/dowhile");
     const {While} = require("../js/Instruccion/while");
-
-
+    const {For} = require("../js/Instruccion/for");
+    const {Case} = require("../js/Instruccion/case")
+    const {Default}= require("../js/Instruccion/default")
+    const {Switch}= require("../js/Instruccion/switch")
+    const {Dvectores} = require("../js/Instruccion/dvectores");
+    const {Dvectores2}=require("../js/Instruccion/dvectores2");
+    const {Vvector}= require("../js/Expresion/valoresvector");
 %}
 %lex // Inicia parte léxica
 
@@ -68,14 +74,21 @@
 //cICLO DO-WHILE
 "do"                    return 'DO';
 "while"                 return 'WHILE';
+"for"                   return 'FOR'
 //cierres
 "break"                 return 'BREAK';
 "continue"              return 'CONTINUE';
 "return"                return 'RETURN';
-
+//switch
+"switch"                return 'SWITCH';
+"case"                  return 'CASE';
+"default"               return 'DEFAULT';
 // signos
 "("                     return 'PARIZQ';
 ")"                     return 'PARDER';
+"["                     return 'CORIZQ';
+"]"                     return 'CORDER';
+"new"                   return 'NEW';
 // Aritmeticas
 "+"                     return 'MAS';
 "-"                     return 'RES';
@@ -100,7 +113,9 @@
 "||"                    return 'OR';
 "!"                     return 'NOT';
 // Cadenas             "asdfasdfasf"
-[\"][^\\\"]*([\\][\\\"ntr][^\\\"]*)*[\"]	{ yytext = yytext.substr(1,yyleng-2); return 'CADENA'; }
+//[\"][^\\\"]*([\\][\\\"ntr'][^\\\"]*)*[\"]	{ yytext = yytext.substr(1,yyleng-2); return 'CADENA'; }
+[\"]([^"\\]|\\.)*["]       { yytext = yytext.substr(1,yyleng-2); return 'CADENA'; }
+
 \'([^\']|['\n']|[\t]|[\r]|[\u])\'               { yytext = yytext.substr(1,yyleng-2); return 'CARACTER'; }
 "true"                                          {return 'TRUE';}
 "false"                                         {return 'FALSE';}
@@ -143,18 +158,64 @@ instrucciones: instrucciones instruccion    {  $1.push($2); $$ = $1;}
 ;
 
 instruccion: 
-            fn_cout PYC                { $$ = $1;}
+            fn_cout PYC                 { $$ = $1;}
             | fn_if                     { $$ = $1;}
-            |fn_dvariables PYC          { $$ = $1;}
+            |variables                  { $$ = $1;}
             |subebaja  PYC              { $$ = $1;}
-            |avariables PYC             { $$ = $1;}
             |fn_dowhile PYC             { $$ = $1;}
             |fn_while                   { $$ = $1;}
+            |fn_for                     { $$ = $1;}
+            |fn_switch                  { $$ = $1;}
             |BREAK PYC                  {$$ = new Break(@1.first_line,@1.first_column);}
             |CONTINUE PYC               {$$ = new Continue(@1.first_line,@1.first_column);}  
+            | declaracioVectores  PYC      {$$ = $1;}
             //|error PYC                  {console.log("Error sintactico en la Linea: " + this._$.first_line + " en la Columna: " + this._$.first_column);}
             ;
-            
+declaracioVectores:
+     TIPOD  ID CORIZQ CORDER ASIGNACION NEW TIPOD CORIZQ expresion CORDER               {$$ = new Dvectores($1,$2,$7,$9,null,@1.first_line,@1.first_column);}
+     |TIPOD ID CORIZQ CORDER CORIZQ CORDER ASIGNACION NEW TIPOD CORIZQ expresion CORDER CORIZQ expresion CORDER   {$$ = new Dvectores($1,$2,$9,$11,$14,@1.first_line,@1.first_column);}
+     | TIPOD ID CORIZQ CORDER ASIGNACION repeti                                         {$$ = new Dvectores2($1,$2,true,$6,@1.first_line,@1.first_column);}
+     |TIPOD ID CORIZQ CORDER CORIZQ CORDER ASIGNACION CORIZQ valores CORDER             {$$ = new Dvectores2($1,$2,false,$9,@1.first_line,@1.first_column);}
+;
+repeti: 
+        CORIZQ listavalores CORDER  {$$ = $2;} 
+;
+valores:
+        valores CM repeti            { $1.push($3); $$ = $1;}
+        | repeti                     { $$ =  [$1];}   
+;
+listavalores: 
+        listavalores CM expresion    { $1.push($3); $$ = $1;}   
+        |expresion                   { $$ =  [$1];}    
+;
+fn_switch:
+        SWITCH PARIZQ expresion PARDER LLAVEIZQ caselist fn_default LLAVEDER  {$$ = new Switch($3,$6,$7,@1.first_line,@1.first_column);}
+;
+caselist: caselista             { $$ = $1;}
+        |                       { $$ = null;}
+;
+caselista : 
+        caselista cases        {  $1.push($2); $$ = $1;}
+        | cases                 { $$ =  [$1];}
+;
+cases:
+        CASE expresion DP instrucciones {$$ = new Case($2,$4,@1.first_line,@1.first_column)}
+;
+fn_default:
+        DEFAULT DP instrucciones        {$$ = new Default($3,@1.first_line,@1.first_column)}
+        |
+;
+variables:
+        fn_dvariables PYC               { $$ = $1;}
+        | avariables PYC                { $$ = $1;}
+;
+fn_for
+        : FOR PARIZQ variables expresion PYC actualizacion PARDER bloque {$$ = new For($3,$4,$6,$8,@1.first_line,@1.first_column);}
+;
+actualizacion:
+        subebaja                        { $$ = $1;}
+        | avariables                    { $$ = $1;}
+;
 fn_while
         : WHILE PARIZQ expresion PARDER bloque {$$ = new While($3,$5,@1.first_line,@1.first_column);}
 ;
@@ -186,7 +247,9 @@ expresion: RES expresion %prec UMINUS                   { $$ = new Aritmetica(ne
         | PARIZQ TIPOD PARDER expresion                 {$$ = new Casteo($2,$4,@1.first_line,@1.first_column);}
         | ID                                            {$$ = new Valorid($1,@1.first_line,@1.first_column);}
         | expresion PF LENGHT PARIZQ PARDER             {$$ = new Length($1,@1.first_line,@1.first_column);}
-            
+        | TYPEOF PARIZQ expresion PARDER                {$$ = new Typeof($3,@1.first_line,@1.first_column);} 
+        | ID CORIZQ expresion CORDER                    {$$ = new Vvector($1,$3,null,@1.first_line,@1.first_column);}
+        | ID CORIZQ expresion CORDER CORIZQ expresion CORDER        {$$ = new Vvector($1,$3,$6,@1.first_line,@1.first_column);}
 ;
 //actualizar vALORES
 avariables

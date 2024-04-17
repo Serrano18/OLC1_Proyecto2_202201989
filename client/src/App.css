@@ -86,8 +86,9 @@ nav ul li a:hover {
   align-items: flex-start;
 }
 
-
-
+.con {
+  text-align: left !important; /* Alinear el texto a la izquierda */
+}
 .textarea-left,
 .textarea-right {
   background: url(http://i.imgur.com/2cOaJ.png);

@@ -11,23 +11,19 @@ class Typeof extends expresion_1.Expresion {
     interpretar(entorno) {
         const value = this.valor.interpretar(entorno);
         if (value.tipo == resultado_1.TipoDato.NUMBER) {
-            if (this.isFloat(value)) {
-                return { valor: 'double', tipo: resultado_1.TipoDato.STRING };
-            }
-            else {
-                return { valor: 'number', tipo: resultado_1.TipoDato.STRING };
-            }
+            return { valor: 'int', tipo: resultado_1.TipoDato.STRING };
         }
         else if (value.tipo == resultado_1.TipoDato.BOOLEANO) {
-            return { valor: 'boolean', tipo: resultado_1.TipoDato.STRING };
+            return { valor: 'bool', tipo: resultado_1.TipoDato.STRING };
         }
         else if (value.tipo == resultado_1.TipoDato.STRING) {
-            if (value.valor.length == 1) {
-                return { valor: 'char', tipo: resultado_1.TipoDato.STRING };
-            }
-            else {
-                return { valor: 'string', tipo: resultado_1.TipoDato.STRING };
-            }
+            return { valor: 'std::string', tipo: resultado_1.TipoDato.STRING };
+        }
+        else if (value.tipo == resultado_1.TipoDato.DOUBLE) {
+            return { valor: 'double', tipo: resultado_1.TipoDato.STRING };
+        }
+        else if (value.tipo == resultado_1.TipoDato.CHAR) {
+            return { valor: 'char', tipo: resultado_1.TipoDato.STRING };
         }
         else if (Array.isArray(value.valor)) {
             return { valor: 'array', tipo: resultado_1.TipoDato.STRING };

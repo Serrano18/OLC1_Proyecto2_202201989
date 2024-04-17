@@ -17,8 +17,10 @@ export class Subebaja extends Instruccion{
         if(value.type == TipoDato.NUMBER || value.type == TipoDato.DOUBLE){
             if(this.tipo){
                 entorno.editarVariable(this.id,value.value + 1,value.type,"variable",this.line,this.column);
+                entorno.editarVariableTablaSimbolos(this.id,value.value+1,value.type,"Variable",entorno,value.fila,value.columna);
             }else{
                 entorno.editarVariable(this.id,value.value - 1,value.type,"variable",this.line,this.column);
+                entorno.editarVariableTablaSimbolos(this.id,value.value-1,value.type,"Variable",entorno,value.fila,value.columna);
             }
         }else{
             throw new Error(`Error:  ${value.type} no es valido`);

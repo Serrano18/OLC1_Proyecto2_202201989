@@ -2,7 +2,6 @@ import { Instruccion } from "../Abstract/instruccion";
 import { Expresion } from "../Abstract/expresion";
 import { TipoDato } from "../Abstract/resultado";
 import { Environment } from "../Symbol/Evironment";
-
 export class Dvariables extends Instruccion{
     private tipo: string;
     private id: string[];
@@ -48,6 +47,7 @@ export class Dvariables extends Instruccion{
             if(dtipo == value.tipo){
                 this.id.forEach(id => {
                     entorno.guardar(id,value.valor,value.tipo,"Variable",this.line,this.column);
+                    entorno.guardarVariablesTablaSimbolos(id,value.valor,value.tipo,"Variable",entorno,this.line,this.column);
                 })
             }else{
                 throw new Error("Error: Los tipos de datos no coinciden1")
@@ -55,6 +55,7 @@ export class Dvariables extends Instruccion{
         }else{
             this.id.forEach(id => {
                 entorno.guardar(id,valordefecto,dtipo,"Variable",this.line,this.column);
+                entorno.guardarVariablesTablaSimbolos(id,valordefecto,dtipo,"Variable",entorno,this.line,this.column);
             })
         }
         return null

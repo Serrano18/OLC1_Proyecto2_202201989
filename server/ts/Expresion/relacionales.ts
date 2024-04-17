@@ -17,7 +17,7 @@ export class Relacional extends Expresion{
     public interpretar(entorno : Environment): Resultado {
         const resultado1 = this.exp1.interpretar(entorno)
         const resultado2 = this.exp2.interpretar(entorno)
-        console.log(resultado1,resultado2) 
+        //console.log(resultado1.valor,resultado2.valor) 
         if(resultado1.tipo==TipoDato.NULO || resultado2.tipo==TipoDato.NULO){
             throw Error("Tipo de dato no se puede comparar")
         }

@@ -1,0 +1,23 @@
+import { Instruccion } from "../Abstract/instruccion";
+import { Environment } from "../Symbol/Evironment";
+export class Default extends Instruccion{
+    instrucciones: Instruccion[]
+
+    constructor(instrucciones:Instruccion[],linea:number,columna:number){
+        super(linea,columna)
+        this.instrucciones = instrucciones
+    }
+
+    public interpretar(entorno : Environment,consola: string[]): any {
+       for(const instruccion of this.instrucciones){
+            try{
+                const ins = instruccion.interpretar(entorno,consola);
+                if(ins != null){
+                   return ins;
+                }
+            }catch(error){
+                throw new Error("Ya valio no funcioanInstrucciones")
+            }
+       }
+    }
+}

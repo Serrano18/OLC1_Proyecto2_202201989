@@ -42,6 +42,7 @@ class Dvariables extends instruccion_1.Instruccion {
             if (dtipo == value.tipo) {
                 this.id.forEach(id => {
                     entorno.guardar(id, value.valor, value.tipo, "Variable", this.line, this.column);
+                    entorno.guardarVariablesTablaSimbolos(id, value.valor, value.tipo, "Variable", entorno, this.line, this.column);
                 });
             }
             else {
@@ -51,6 +52,7 @@ class Dvariables extends instruccion_1.Instruccion {
         else {
             this.id.forEach(id => {
                 entorno.guardar(id, valordefecto, dtipo, "Variable", this.line, this.column);
+                entorno.guardarVariablesTablaSimbolos(id, valordefecto, dtipo, "Variable", entorno, this.line, this.column);
             });
         }
         return null;

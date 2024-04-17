@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AST = void 0;
 const Evironment_1 = require("./Symbol/Evironment");
+const Errores_1 = require("./Errores");
+const Error_1 = require("./Error");
 class AST {
     constructor(instrucciones) {
         this.instrucciones = instrucciones;
@@ -11,7 +13,14 @@ class AST {
     Ejecutar() {
         // Primera pasada
         this.instrucciones.forEach(instruccion => {
-            instruccion.interpretar(this.entornoglobal, this.consola);
+            try {
+                instruccion.interpretar(this.entornoglobal, this.consola);
+            }
+            catch (error) {
+                if (error instanceof Error_1.Error_) {
+                    Errores_1.errores.push(error);
+                }
+            }
         });
     }
     getConsola() {

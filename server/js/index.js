@@ -1,15 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const Tablasimbolos_1 = require("./Tablasimbolos");
 const parser = require("../Gramatica/gramatica");
 function interprete(contenido) {
     try {
+        (0, Tablasimbolos_1.vaciarGlobalMap)();
         const ast = parser.parse(contenido);
         ast.Ejecutar();
         console.log("Análisis finalizado 2");
+        console.log(Tablasimbolos_1.globalMap);
         return ast.getConsola();
     }
-    catch (error) {
-        console.error(error);
+    catch (e) {
+        return e;
     }
 }
 const express = require('express');

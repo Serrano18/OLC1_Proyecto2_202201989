@@ -38,6 +38,10 @@ class Aritmetica extends expresion_1.Expresion {
         }
         else if (this.Operacion == resultado_1.OpAritmetica.RESTA) {
             const dominante = RESTAS[resultadoIzq.tipo][resultadoDer.tipo];
+            if (resultadoIzq.tipo == resultado_1.TipoDato.BOOLEANO)
+                resultadoIzq.valor = resultadoIzq.valor ? 1 : 0;
+            if (resultadoDer.tipo == resultado_1.TipoDato.BOOLEANO)
+                resultadoDer.valor = resultadoDer.valor ? 1 : 0;
             if (dominante == resultado_1.TipoDato.NULO) {
                 throw Error("tipo dato no valido");
             }
@@ -123,3 +127,9 @@ const POTENCIA = [
     [resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
     [resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO, resultado_1.TipoDato.NULO],
 ];
+function convertir(tipoR) {
+    if (tipoR.tipo == resultado_1.TipoDato.BOOLEANO)
+        tipoR.valor = tipoR.valor ? 1 : 0;
+    if (tipoR.tipo == resultado_1.TipoDato.CHAR)
+        tipoR.valor = tipoR.valor.charCodeAt(0);
+}

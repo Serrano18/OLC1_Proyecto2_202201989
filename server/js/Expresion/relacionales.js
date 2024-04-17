@@ -15,7 +15,7 @@ class Relacional extends expresion_1.Expresion {
     interpretar(entorno) {
         const resultado1 = this.exp1.interpretar(entorno);
         const resultado2 = this.exp2.interpretar(entorno);
-        console.log(resultado1, resultado2);
+        //console.log(resultado1.valor,resultado2.valor) 
         if (resultado1.tipo == resultado_1.TipoDato.NULO || resultado2.tipo == resultado_1.TipoDato.NULO) {
             throw Error("Tipo de dato no se puede comparar");
         }
