@@ -16,11 +16,11 @@ class Subebaja extends instruccion_1.Instruccion {
         }
         if (value.type == resultado_1.TipoDato.NUMBER || value.type == resultado_1.TipoDato.DOUBLE) {
             if (this.tipo) {
-                entorno.editarVariable(this.id, value.value + 1, value.type, "variable", this.line, this.column);
+                entorno.editarVariable(this.id, value.value + 1, value.type, "Variable", value.fila, value.columna);
                 entorno.editarVariableTablaSimbolos(this.id, value.value + 1, value.type, "Variable", entorno, value.fila, value.columna);
             }
             else {
-                entorno.editarVariable(this.id, value.value - 1, value.type, "variable", this.line, this.column);
+                entorno.editarVariable(this.id, value.value - 1, value.type, "Variable", value.fila, value.columna);
                 entorno.editarVariableTablaSimbolos(this.id, value.value - 1, value.type, "Variable", entorno, value.fila, value.columna);
             }
         }

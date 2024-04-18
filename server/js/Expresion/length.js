@@ -9,12 +9,14 @@ class Length extends expresion_1.Expresion {
         this.valor = valor;
     }
     interpretar(entorno) {
+        console.log("Fase 1");
         const value = this.valor.interpretar(entorno);
         console.log(value.valor);
         if (value.tipo == resultado_1.TipoDato.STRING) {
             return { valor: value.valor.length, tipo: resultado_1.TipoDato.NUMBER };
         }
         else {
+            console.log("arreglo");
             // Manejo de error si el valor no es un array o una cadena
             throw new Error('Error: El valor no es un vector, lista o cadena.');
         }

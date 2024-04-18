@@ -4,12 +4,12 @@ export class Datosts{
     public id: string;
     public value: any;
     public type: TipoDato;
-    public fila:number;
+    public fila:number|undefined;
     public columna : number
     public type2:string;
     public entorno:Environment
 
-    constructor(id: string, type: TipoDato, value: any,type2:string,entorno:Environment,fila:number,columna:number) {
+    constructor(id: string, type: TipoDato, value: any,type2:string,entorno:Environment,fila:number|undefined,columna:number) {
         this.id = id;
         this.type = type;
         this.type2 = type2

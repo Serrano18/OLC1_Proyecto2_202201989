@@ -1,7 +1,7 @@
 
 export type Resultado = {
     valor: any,
-    tipo: TipoDato
+    tipo: TipoDato 
 }
 
 export enum TipoDato{

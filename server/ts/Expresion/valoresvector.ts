@@ -23,7 +23,8 @@ export class Vvector extends Expresion{
        }
        let col 
        if(this.col != null){
-            col = this.fila.interpretar(entorno).valor
+            col = this.col.interpretar(entorno).valor
+            console.log("dato que interpreta",col)
        }else{
             col=0
        }

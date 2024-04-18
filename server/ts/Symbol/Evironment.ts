@@ -54,26 +54,30 @@ export class Environment{
         globalMap.push(new Datosts(id, tipo, valor, tipo2, entorno, fila, columna));
     }
     
-    public editarVariableTablaSimbolos(id: string, valor: any, tipo: TipoDato, tipo2: string,entorno:Environment, fila: number, columna: number) {
+    public editarVariableTablaSimbolos(id: string, valor: any, tipo: TipoDato, tipo2: string,entorno:Environment, fila: number|undefined, columna: number) {
+        console.log(this.variables)
         // Buscar la variable en el array
+        console.log("El id: ",id," fila: ",fila," col: ",columna," El tipo: ",tipo)
         const existingIndex = globalMap.findIndex((variable) => {
+            console.log("Id: ",variable.id," F: ",variable.fila," C: ",variable.columna," Tipo: ",variable.type)
             return variable.id == id && variable.fila == fila && variable.columna == columna && variable.type == tipo;
         });
-    
-        if (existingIndex) {
+        console.log("iNDICE: ",existingIndex)
+        console.log("findice: ",globalMap[existingIndex].fila)
+        if (existingIndex>=0) {
+            globalMap[existingIndex] = new Datosts(id, tipo, valor, tipo2, entorno, globalMap[existingIndex].fila, globalMap[existingIndex].columna);
+            
+        }else{
             throw Error("Variable no existente");
         }
+     
     
-        // Si se encuentra, actualizar su valor
-        globalMap[existingIndex] = new Datosts(id, tipo, valor, tipo2, entorno, fila, columna);
     }
 
     //vectores
     public guardarVector(id: string, tipo: TipoDato,nfila:number,ncolumna:number,fila:number,columna:number){ //UNICAMENTE PARA DECLARAR
         let env : Environment | null = this;
-       console.log(id)
         if(env.arreglos.has(id)){
-            console.log("entro")
                 throw new Error ("Vector ya declarado");
         }else if(env.variables.has(id)){
             
@@ -81,7 +85,6 @@ export class Environment{
         }else if(env.funciones.has(id)){
                 throw Error(`Funcion ${id} declarado anteriormente`);
         }
-        console.log("Terminado")
         this.arreglos.set(id, new Vector( id, tipo,nfila,ncolumna,fila,columna));
     }
 
@@ -98,6 +101,7 @@ export class Environment{
 
     public guardarVectorTablaSimbolos(id: string, tipo: TipoDato,valores:any,nfila:number,ncolumna:number,fila:number,columna:number,entorno:Environment) {
         // Verificar si ya existe una entrada con el mismo id, tipo y entorno
+       
         const existingIndex = globalMap.some((variable) => {
             return variable.id == id && variable.fila == fila && variable.columna == columna && variable.type == tipo ;
         });
@@ -110,19 +114,19 @@ export class Environment{
         globalMap.push(new Datosts(id,tipo,valores,"Vector",entorno,fila,columna));
     }
     
-    public editarVectorTablaSimbolos(id: string, valor: any, tipo: TipoDato, tipo2: string,entorno:Environment, fila: number, columna: number) {
+    public editarVectorTablaSimbolos(id: string, valor: any, tipo: TipoDato, fila: number, columna: number) {
         // Buscar la variable en el array
         const existingIndex = globalMap.findIndex((variable) => {
             return variable.id == id && variable.fila == fila && variable.columna == columna && variable.type == tipo;
         });
     
         if (existingIndex) {
-            throw Error("Variable no existente");
+            globalMap[existingIndex] = new Datosts(id, globalMap[existingIndex].type, valor, globalMap[existingIndex].type2,globalMap[existingIndex].entorno, globalMap[existingIndex].fila,globalMap[existingIndex].columna);
         }
     
+        throw Error("Variable no existente");
         // Si se encuentra, actualizar su valor
-        globalMap[existingIndex] = new Datosts(id, tipo, valor, tipo2, entorno, fila, columna);
-    }
+          }
 
     public guardarFuncion(id: string, funcion : Function){//no funciona aun
         //TODO ver si la funcion ya existe, reportar error

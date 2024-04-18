@@ -27,6 +27,9 @@ app.post('/interpretar', (req, res) => {
     const interpretado = interprete(contenido.toLowerCase());
     res.send(interpretado);
 });
+app.get('/globalmap', (req, res) => {
+    res.send(Tablasimbolos_1.globalMap); // Envía globalMap
+});
 app.get('/', (req, res) => {
     res.send("Esta Funcionando");
 });

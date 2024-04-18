@@ -32,6 +32,8 @@
     const {Dvectores} = require("../js/Instruccion/dvectores");
     const {Dvectores2}=require("../js/Instruccion/dvectores2");
     const {Vvector}= require("../js/Expresion/valoresvector");
+    const {Avector} = require("../js/Instruccion/avector");
+    const {Cstr} = require("../js/Expresion/cstr");
 %}
 %lex // Inicia parte léxica
 
@@ -131,7 +133,7 @@
 /lex
 
 // precedencia
-%right 'PF'
+
 %right 'TIPOD'
 %right 'SADM'
 %right 'NOT'
@@ -142,6 +144,7 @@
 %left 'MUL','DIV','MOD'
 %nonassoc 'POW'
 %right UMINUS 
+%right 'PF'
 
 // Inicio de gramática
 %start ini
@@ -169,16 +172,26 @@ instruccion:
             |BREAK PYC                  {$$ = new Break(@1.first_line,@1.first_column);}
             |CONTINUE PYC               {$$ = new Continue(@1.first_line,@1.first_column);}  
             | declaracioVectores  PYC      {$$ = $1;}
+            |modivectores    PYC        {$$ = $1;}
             //|error PYC                  {console.log("Error sintactico en la Linea: " + this._$.first_line + " en la Columna: " + this._$.first_column);}
             ;
+modivectores:
+         ID CORIZQ expresion CORDER ASIGNACION expresion {$$ = new Avector($1,$3,null,$6,@1.first_line,@1.first_column);}
+        | ID CORIZQ expresion CORDER CORIZQ expresion CORDER ASIGNACION expresion  {$$ = new Avector($1,$3,$6,$9,@1.first_line,@1.first_column);}
+        
+;
 declaracioVectores:
      TIPOD  ID CORIZQ CORDER ASIGNACION NEW TIPOD CORIZQ expresion CORDER               {$$ = new Dvectores($1,$2,$7,$9,null,@1.first_line,@1.first_column);}
      |TIPOD ID CORIZQ CORDER CORIZQ CORDER ASIGNACION NEW TIPOD CORIZQ expresion CORDER CORIZQ expresion CORDER   {$$ = new Dvectores($1,$2,$9,$11,$14,@1.first_line,@1.first_column);}
      | TIPOD ID CORIZQ CORDER ASIGNACION repeti                                         {$$ = new Dvectores2($1,$2,true,$6,@1.first_line,@1.first_column);}
      |TIPOD ID CORIZQ CORDER CORIZQ CORDER ASIGNACION CORIZQ valores CORDER             {$$ = new Dvectores2($1,$2,false,$9,@1.first_line,@1.first_column);}
 ;
-repeti: 
-        CORIZQ listavalores CORDER  {$$ = $2;} 
+cstre : 
+  expresion PF CSTR PARIZQ PARDER               {$$ = new Cstr($1,@1.first_line,@1.first_column);}
+;
+repeti:
+        cstre {$$ = $1;} 
+      |  CORIZQ listavalores CORDER  {$$ = $2;} 
 ;
 valores:
         valores CM repeti            { $1.push($3); $$ = $1;}
@@ -250,7 +263,10 @@ expresion: RES expresion %prec UMINUS                   { $$ = new Aritmetica(ne
         | TYPEOF PARIZQ expresion PARDER                {$$ = new Typeof($3,@1.first_line,@1.first_column);} 
         | ID CORIZQ expresion CORDER                    {$$ = new Vvector($1,$3,null,@1.first_line,@1.first_column);}
         | ID CORIZQ expresion CORDER CORIZQ expresion CORDER        {$$ = new Vvector($1,$3,$6,@1.first_line,@1.first_column);}
+        
 ;
+
+
 //actualizar vALORES
 avariables
         :ID ASIGNACION expresion                        {$$ = new Avariable($1,$3,@1.first_line,@1.first_column)}

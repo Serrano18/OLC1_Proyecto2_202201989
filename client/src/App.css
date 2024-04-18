@@ -118,3 +118,25 @@ nav ul li a:hover {
 .contain h3 + h3 {
   margin-left: 50%; /* Establece el margen izquierdo entre los h3 */
 }
+.contenedor {
+  border: 1px solid black; /* Borde negro para el contenedor */
+  padding: 20px; /* Espaciado interno */
+  margin: 20px; /* Margen externo */
+  
+}
+
+table {
+  border-collapse: collapse; /* Colapsar bordes */
+  width: 100%; /* Ancho total de la tabla */
+}
+
+th, td {
+  border: 1px solid white; /* Borde blanco para celdas */
+  padding: 8px; /* Espaciado interno de celdas */
+  text-align: center; /* Alinear texto a la izquierda */
+}
+
+th {
+  background-color: #f2f2f2; /* Color de fondo para encabezados */
+  color:#333
+}

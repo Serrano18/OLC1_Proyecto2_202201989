@@ -34,7 +34,9 @@ app.post('/interpretar', (req:Request, res:Response) => {
   const interpretado = interprete(contenido.toLowerCase())
   res.send(interpretado)
 })
-
+app.get('/globalmap', (req: Request, res: Response) => {
+  res.send(globalMap); // Envía globalMap
+});
 app.get('/', (req:Request, res:Response) => {
 
     res.send("Esta Funcionando")

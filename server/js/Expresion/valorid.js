@@ -9,11 +9,18 @@ class Valorid extends expresion_1.Expresion {
     }
     interpretar(entorno) {
         const value = entorno.getVariable(this.id);
+        console.log(value);
         if (value != null) {
             return { valor: value.value, tipo: value.type };
         }
         else {
-            throw new Error(`La variable ${this.id} no existe`);
+            const arreglo = entorno.getVector(this.id);
+            if (arreglo != null) {
+                return { valor: arreglo.values, tipo: arreglo.tipo };
+            }
+            else {
+                throw new Error(`La variable o vector ${this.id} no existe`);
+            }
         }
     }
 }
