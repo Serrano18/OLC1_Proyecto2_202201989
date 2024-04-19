@@ -8,7 +8,8 @@ var TipoDato;
     TipoDato[TipoDato["BOOLEANO"] = 2] = "BOOLEANO";
     TipoDato[TipoDato["CHAR"] = 3] = "CHAR";
     TipoDato[TipoDato["STRING"] = 4] = "STRING";
-    TipoDato[TipoDato["NULO"] = 5] = "NULO";
+    TipoDato[TipoDato["ID"] = 5] = "ID";
+    TipoDato[TipoDato["NULO"] = 6] = "NULO";
 })(TipoDato || (exports.TipoDato = TipoDato = {}));
 var OpAritmetica;
 (function (OpAritmetica) {
@@ -18,6 +19,7 @@ var OpAritmetica;
     OpAritmetica[OpAritmetica["DIVISION"] = 3] = "DIVISION";
     OpAritmetica[OpAritmetica["MOD"] = 4] = "MOD";
     OpAritmetica[OpAritmetica["POW"] = 5] = "POW";
+    OpAritmetica[OpAritmetica["UNARIA"] = 6] = "UNARIA";
 })(OpAritmetica || (exports.OpAritmetica = OpAritmetica = {}));
 var OpRelacional;
 (function (OpRelacional) {

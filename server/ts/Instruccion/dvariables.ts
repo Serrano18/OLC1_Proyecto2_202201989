@@ -2,6 +2,8 @@ import { Instruccion } from "../Abstract/instruccion";
 import { Expresion } from "../Abstract/expresion";
 import { TipoDato } from "../Abstract/resultado";
 import { Environment } from "../Symbol/Evironment";
+import { lerrores,errores } from "../Tablasimbolos";
+import { createEdge,createNode } from "../graphivz/graphviz";
 export class Dvariables extends Instruccion{
     private tipo: string;
     private id: string[];
@@ -13,10 +15,40 @@ export class Dvariables extends Instruccion{
         this.id = id;
         this.valor = valor;
     }
-    public interpretar(entorno : Environment,consola:string[]):null{
+    public crearGrafico(padre: any){
+        const nodoPadre = createNode('Declaración');
+        createEdge(padre, nodoPadre);
+    
+        const nodoTipo = createNode(this.tipo);
+        createEdge(nodoPadre, nodoTipo);
+    
+        for (let i = 0; i < this.id.length; i++){
+            const nodoId = createNode(this.id[i]);
+            createEdge(nodoPadre, nodoId);
+    
+            if (i < this.id.length - 1){
+                const nodoComa = createNode(',');
+                createEdge(nodoPadre, nodoComa);
+            }
+        }
+    
+        if (this.valor != null){
+            const nodoIgual = createNode('=');
+            createEdge(nodoPadre, nodoIgual);
+    
+            const nodoExpresion = createNode('Expresion');
+            createEdge(nodoPadre, nodoExpresion);
+            this.valor.crearGrafico(nodoExpresion);
+        }
+    
+        const nodoPuntoComa = createNode(';');
+        createEdge(nodoPadre, nodoPuntoComa);
+    
+    }
+    public interpretar(entorno : Environment):any{
         let dtipo:TipoDato;
         let valordefecto : any;
-        switch(this.tipo.toString()){
+        switch(this.tipo.toLowerCase()){
             case "int":
                 dtipo = TipoDato.NUMBER;
                 valordefecto = Number(0);
@@ -38,7 +70,7 @@ export class Dvariables extends Instruccion{
                 valordefecto = true;
                 break
             default:
-                throw new Error('Error: Tipo de dato invalido');
+                throw lerrores.push(new errores(this.line, this.column, "Semantico", `Tipo de dato ${this.tipo} no valido`));
         
         }
 
@@ -46,18 +78,17 @@ export class Dvariables extends Instruccion{
             const value = this.valor.interpretar(entorno);
             if(dtipo == value.tipo){
                 this.id.forEach(id => {
-                    entorno.guardar(id,value.valor,value.tipo,"Variable",this.line,this.column);
-                    entorno.guardarVariablesTablaSimbolos(id,value.valor,value.tipo,"Variable",entorno,this.line,this.column);
+                    entorno.guardar(id.toLowerCase(),value.valor,value.tipo,"Variable",this.line,this.column);
+                    entorno.guardarVariablesTablaSimbolos(id.toLowerCase(),value.valor,value.tipo,"Variable",entorno,this.line,this.column);
                 })
             }else{
-                throw new Error("Error: Los tipos de datos no coinciden1")
+                throw lerrores.push(new errores(this.line, this.column, "Semantico", `Tipo de dato ${this.tipo} no coinciden con el valor asignado`));
             }
         }else{
             this.id.forEach(id => {
-                entorno.guardar(id,valordefecto,dtipo,"Variable",this.line,this.column);
-                entorno.guardarVariablesTablaSimbolos(id,valordefecto,dtipo,"Variable",entorno,this.line,this.column);
+                entorno.guardar(id.toLowerCase(),valordefecto,dtipo,"Variable",this.line,this.column);
+                entorno.guardarVariablesTablaSimbolos(id.toLowerCase(),valordefecto,dtipo,"Variable",entorno,this.line,this.column);
             })
         }
-        return null
     }
 }

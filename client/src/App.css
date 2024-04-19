@@ -105,6 +105,9 @@ nav ul li a:hover {
   padding-top: 10px;
   border-color:#ccc;
   border-radius: 0.5pc;
+  overflow: auto; /* Agrega desplazamiento tanto horizontal como vertical */
+  white-space: pre-wrap; /* Asegura que el texto se ajuste y permita el desplazamiento vertical */
+
 }
 .contain {
   display: flex;

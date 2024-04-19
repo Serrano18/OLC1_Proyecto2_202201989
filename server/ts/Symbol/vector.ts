@@ -8,7 +8,7 @@ export class Vector{
     public column:number;
 
     constructor(id:string,tipo:TipoDato,nfila:number,ncolumna:number,line:number,column:number){
-        this.id = id
+        this.id = id.toLowerCase()
         this.tipo =tipo
         this.line = line
         this.column = column
@@ -36,6 +36,9 @@ export class Vector{
                 this.values[i][j] = new Symbol(id, tipo, valor, "Vector", line,column); 
             }
         }
+    }
+    public setVector(vector:Symbol[][]){    
+        this.values = vector
     }
 
 }

@@ -4,7 +4,7 @@ exports.Vector = void 0;
 const symbol_1 = require("./symbol");
 class Vector {
     constructor(id, tipo, nfila, ncolumna, line, column) {
-        this.id = id;
+        this.id = id.toLowerCase();
         this.tipo = tipo;
         this.line = line;
         this.column = column;
@@ -31,6 +31,9 @@ class Vector {
                 this.values[i][j] = new symbol_1.Symbol(id, tipo, valor, "Vector", line, column);
             }
         }
+    }
+    setVector(vector) {
+        this.values = vector;
     }
 }
 exports.Vector = Vector;

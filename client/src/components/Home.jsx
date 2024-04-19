@@ -6,10 +6,12 @@ import axios from 'axios';
 import { PDFViewer, Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer';
 
 export function Home(){
-  const [myvalue,setMyValue] = useState("cout<<5;");
+  const [myvalue,setMyValue] = useState("");
   const [contenido,setContenido] = useState("");
   const [globalMap, setGlobalMap] = useState([]);
+  const [lerrores, setLerrores] = useState([]);
   const [showPDF, setShowPDF] = useState(false); 
+  const [abrirTe, setAbrirTe] = useState(false); 
 
 const styles = StyleSheet.create({
     page: {
@@ -43,6 +45,7 @@ const styles = StyleSheet.create({
 
     const saveFile =  () =>{
       setShowPDF(false);
+      setAbrirTe(false);
       const fileName = window.prompt("Por favor, ingrese el nombre del archivo:", "archivo.sc");
       if(fileName) {
           const blob = new Blob([myvalue], {type: 'text/plain;charset=utf-8'});
@@ -55,13 +58,25 @@ const styles = StyleSheet.create({
       fileInputRef.current.click();
     };
     const handleButtonClick = () => {
+      setAbrirTe(false);
       TablaSimbolos(); // Llama a la función TablaSimbolos al hacer clic en el botón
+  };
+  const botonerrores = () => {
+    setShowPDF(false);
+    TablaErrores(); 
   };
     const readFile=(e)=> {
       setShowPDF(false);
+      setAbrirTe(false);
       const file = e.target.files[0];
       if ( !file ) return;
-  
+
+      const fileExtension = file.name.split('.').pop();
+      if (fileExtension !== 'sc') {
+        console.log('Solo archivos .sc son permitidos');
+        return;
+      }
+    
       const fileReader = new FileReader();
   
       fileReader.readAsText( file );
@@ -80,6 +95,7 @@ const styles = StyleSheet.create({
         setMyValue('');
         setContenido('');
         setShowPDF(false);
+        setAbrirTe(false);
       };
       
       const TablaSimbolos = async () => {
@@ -93,8 +109,19 @@ const styles = StyleSheet.create({
         }
     };
 
+    const TablaErrores = async () => {
+      try {
+          const response = await axios.get('http://localhost:3000/errores');
+          await setLerrores(response.data) 
+          await setAbrirTe(true);
+      } catch (error) {
+          console.error(error);
+      }
+  };
     const Ejecutar = () => {
+   
        setShowPDF(false);
+       setAbrirTe(false);
         console.log(myvalue);
         setContenido('');
         fetch("http://localhost:3000/interpretar", {
@@ -114,97 +141,116 @@ const styles = StyleSheet.create({
       .catch(error => console.error(error));
 
     }
-
+    const PDFGenerator2 = ({data}) => (
+      <div className="contenedor2">
+        <h2>Tabla de Errores</h2>
+         <table>
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Tipo</th>
+                <th>Mensaje</th>
+                <th>Fila</th>
+                <th>Columna</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data && data.map((item,index) => (
+                  <tr key={item.index}>
+                  <td>{index+1}</td>
+                  <td>{item.tipo}</td>
+                  <td>{item.mensaje}</td>
+                  <td>{item.fila}</td>
+                  <td>{item.columna}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+      </div>
+  );
     const PDFGenerator = ({ data }) => (
       <div className="contenedor">
         <h2>Tabla de Simbolos</h2>
-    <table>
-              <thead>
-                <tr>
-                  <th>Id</th>
-                  <th>Type</th>
-                  <th>Value</th>
-                  <th>Fila</th>
-                  <th>Columna</th>
-                  <th>Type2</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data && data.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.id}</td>
-                    <td>{(() => {
-                      switch (item.type) {
-                        case 0:
-                          return "int";
-                        case 1:
-                          return "double";
-                        case 2:
-                          return "bool";
-                        case 3:
-                          return "char";
-                        case 4:
-                          return "std::string";
-                        default:
-                          return "null";
-                      }
-                    })()}</td>
-                    <td>
-                    {(() => {
-                      if (item.type == 2) {
-                          if(item.value){
-                            return "True"
-                          }else if(!(item.value)){
-                            return "false"
-                          }else{
-                            return item.value
-                          }
-                      }else if(item.type2 == "Variable"){
+        <table>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Id</th>
+              <th>Tipo</th>
+              <th>Valor</th>
+              <th>Fila</th>
+              <th>Columna</th>
+              <th>Tipo2</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data && data.map((item,index) => (
+              <tr key={index}>
+                <td>{index+1}</td>
+                <td>{item.id}</td>
+                <td>{(() => {
+                    switch (item.type) {
+                      case 0:
+                        return "int";
+                      case 1:
+                        return "double";
+                      case 2:
+                        return "bool";
+                      case 3:
+                        return "char";
+                      case 4:
+                        return "std::string";
+                      default:
+                        return "null";
+                    }
+                  })()}</td>
+                <td> {(() => {
+                    if (item.type == 2) {
+                      if(item.value){
+                        return "True"
+                      }else if(!(item.value)){
+                        return "false"
+                      }else{
                         return item.value
-                        
-                      }else if(item.type2 == "Vector"){
-                        
-                         console.log(item.value.values[0][0].value)
-                         let valor  = "[";
-                         
-                         for(let i=0; i < item.value.values.length;i++){
-                          if (item.value.values[i].length != 1){
-                            valor = valor + "["
-                          }
-                          for (let j = 0; j<item.value.values[i].length;j++){
-                            valor = valor+ " " + item.value.values[i][j].value 
-                            if(j < item.value.values[i].length-1){
-                              valor = valor + ","
-                            }
-                          }
-                          if (item.value.values[i].length != 1){
-                            valor = valor + "]"
-                          } else if( i != item.value.values.length-1){
-                            valor = valor + ","
-                          } 
-                           if (item.value.values[i].length != 1 && i < item.value.values.length-1){
-                            valor = valor + ","
-                          }
-                        
-                         }
-                         valor = valor + " ]"
-                        return valor
-                       
-                      
                       }
-
-                    })()}</td>
-                    <td>{item.fila}</td>
-                    <td>{item.columna}</td>
-                    <td>{item.type2}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    }else if(item.type2 == "Variable"){
+                      return item.value
+                    }else if(item.type2 == "Vector"){
+                      let valor  = "[";
+                      for(let i=0; i < item.value.values.length;i++){
+                        if (item.value.values[i].length != 1){
+                          valor = valor + "["
+                        }
+                        for (let j = 0; j<item.value.values[i].length;j++){
+                          valor = valor+ " " + item.value.values[i][j].value 
+                          if(j < item.value.values[i].length-1){
+                            valor = valor + ","
+                          }
+                        }
+                        if (item.value.values[i].length != 1){
+                          valor = valor + "]"
+                        } else if( i != item.value.values.length-1){
+                          valor = valor + ","
+                        } 
+                        if (item.value.values[i].length != 1 && i < item.value.values.length-1){
+                          valor = valor + ","
+                        }
+                        
+                      }
+                      valor = valor + " ]"
+                      return valor
+                    }
+                  })()}</td>
+                  <td>{item.fila}</td>
+                  <td>{item.columna}</td>
+                  <td>{item.type2}</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
       </div>
-        
-       
   );
+
     return (
     <>
       <nav>
@@ -212,17 +258,11 @@ const styles = StyleSheet.create({
          <li><a href="#">CompiScript+</a></li>
           <li><a onClick={createBlankFile}>Crear archivos</a></li>
           <li>
-            <input
-              type='file'
-              ref={fileInputRef}
-              style={{ display: 'none' }}
-              onChange={readFile}
-            />
-            <a href="#" onClick={openFilePicker}>Abrir archivos</a>
-          </li>
+            <input  type='file'  accept='.sc' ref={fileInputRef} style={{ display: 'none' }}  onChange={readFile}  />
+            <a  onClick={openFilePicker}>Abrir archivos</a></li>
           <li><a onClick={saveFile}>Guardar archivo</a></li>
           <li><a onClick={Ejecutar}>Ejecutar</a></li>
-          <li><a href="#">Reporte de Errores</a></li>
+          <li><a onClick={botonerrores}>Reporte de Errores</a></li>
           <li><a href="#">Generar Árbol AST</a></li>
           <li><a onClick={handleButtonClick}>Reporte de Tabla de Símbolos</a> </li>
         </ul>
@@ -251,6 +291,7 @@ const styles = StyleSheet.create({
               
               </div>
               {showPDF && <PDFGenerator data={globalMap} />} {/* Mostrar el PDF si showPDF es true */}
+              {abrirTe && <PDFGenerator2 data={lerrores} />} {/* Mostrar el PDF si showPDF es true */}
         </>
     )
 }

@@ -5,6 +5,7 @@ const symbol_1 = require("./symbol");
 const datosts_1 = require("../datosts");
 const Tablasimbolos_1 = require("../Tablasimbolos");
 const vector_1 = require("./vector");
+const Tablasimbolos_2 = require("../Tablasimbolos");
 class Environment {
     constructor(anterior) {
         this.anterior = anterior;
@@ -15,13 +16,13 @@ class Environment {
     guardar(id, valor, tipo, tipo2, fila, columna) {
         let env = this;
         if (env.variables.has(id)) {
-            throw Error(`Variable ${id} ya declarada anteriormente`);
+            throw Tablasimbolos_2.lerrores.push(new Tablasimbolos_2.errores(fila, columna, "Semantico", `Variable ${id} ya declarada anteriormente`));
         }
         else if (env.arreglos.has(id)) {
-            throw Error(`Arreglo ${id} declarado anteriormente`);
+            throw Tablasimbolos_2.lerrores.push(new Tablasimbolos_2.errores(fila, columna, "Semantico", `Arreglo ${id} declarado anteriormente`));
         }
         else if (env.funciones.has(id)) {
-            throw Error(`Funcion ${id} declarado anteriormente`);
+            throw Tablasimbolos_2.lerrores.push(new Tablasimbolos_2.errores(fila, columna, "Semantico", `Funcion ${id} declarado anteriormente`));
         }
         this.variables.set(id, new symbol_1.Symbol(id, tipo, valor, tipo2, fila, columna));
     }
@@ -34,7 +35,7 @@ class Environment {
             }
             env = env.anterior;
         }
-        throw Error("Variable no existente");
+        throw Tablasimbolos_2.lerrores.push(new Tablasimbolos_2.errores(fila, columna, "Semantico", `Variable ${id} no declarada`));
     }
     guardarVariablesTablaSimbolos(id, valor, tipo, tipo2, entorno, fila, columna) {
         // Verificar si ya existe una entrada con el mismo id, tipo y entorno
@@ -42,39 +43,34 @@ class Environment {
             return variable.id == id && variable.fila == fila && variable.columna == columna && variable.type == tipo && variable.entorno == entorno;
         });
         if (existingIndex) {
-            throw Error("Variable ya declarada anteriormente hash");
+            throw Tablasimbolos_2.lerrores.push(new Tablasimbolos_2.errores(fila, columna, "Semantico", `Variable ${id} ya declarada anteriormente`));
         }
         // Si no existe, agregar una nueva entrada al array
         Tablasimbolos_1.globalMap.push(new datosts_1.Datosts(id, tipo, valor, tipo2, entorno, fila, columna));
     }
     editarVariableTablaSimbolos(id, valor, tipo, tipo2, entorno, fila, columna) {
-        console.log(this.variables);
         // Buscar la variable en el array
-        console.log("El id: ", id, " fila: ", fila, " col: ", columna, " El tipo: ", tipo);
         const existingIndex = Tablasimbolos_1.globalMap.findIndex((variable) => {
-            console.log("Id: ", variable.id, " F: ", variable.fila, " C: ", variable.columna, " Tipo: ", variable.type);
             return variable.id == id && variable.fila == fila && variable.columna == columna && variable.type == tipo;
         });
-        console.log("iNDICE: ", existingIndex);
-        console.log("findice: ", Tablasimbolos_1.globalMap[existingIndex].fila);
         if (existingIndex >= 0) {
             Tablasimbolos_1.globalMap[existingIndex] = new datosts_1.Datosts(id, tipo, valor, tipo2, entorno, Tablasimbolos_1.globalMap[existingIndex].fila, Tablasimbolos_1.globalMap[existingIndex].columna);
         }
         else {
-            throw Error("Variable no existente");
+            throw Tablasimbolos_2.lerrores.push(new Tablasimbolos_2.errores(fila, columna, "Semantico", `Variable ${id} no declarada`));
         }
     }
     //vectores
     guardarVector(id, tipo, nfila, ncolumna, fila, columna) {
         let env = this;
         if (env.arreglos.has(id)) {
-            throw new Error("Vector ya declarado");
+            throw Tablasimbolos_2.lerrores.push(new Tablasimbolos_2.errores(fila, columna, "Semantico", `Vector ${id} ya declarado anteriormente`));
         }
         else if (env.variables.has(id)) {
-            throw Error(`Arreglo ${id} declarado anteriormente`);
+            throw Tablasimbolos_2.lerrores.push(new Tablasimbolos_2.errores(fila, columna, "Semantico", `Variable ${id} ya declarada anteriormente`));
         }
         else if (env.funciones.has(id)) {
-            throw Error(`Funcion ${id} declarado anteriormente`);
+            throw Tablasimbolos_2.lerrores.push(new Tablasimbolos_2.errores(fila, columna, "Semantico", `Funcion ${id} declarado anteriormente`));
         }
         this.arreglos.set(id, new vector_1.Vector(id, tipo, nfila, ncolumna, fila, columna));
     }
@@ -94,7 +90,7 @@ class Environment {
             return variable.id == id && variable.fila == fila && variable.columna == columna && variable.type == tipo;
         });
         if (existingIndex) {
-            throw Error("Vector ya declarado anteriormente hash");
+            throw Tablasimbolos_2.lerrores.push(new Tablasimbolos_2.errores(fila, columna, "Semantico", `Vector ${id} ya declarado anteriormente`));
         }
         // Si no existe, agregar una nueva entrada al array
         Tablasimbolos_1.globalMap.push(new datosts_1.Datosts(id, tipo, valores, "Vector", entorno, fila, columna));
@@ -107,11 +103,20 @@ class Environment {
         if (existingIndex) {
             Tablasimbolos_1.globalMap[existingIndex] = new datosts_1.Datosts(id, Tablasimbolos_1.globalMap[existingIndex].type, valor, Tablasimbolos_1.globalMap[existingIndex].type2, Tablasimbolos_1.globalMap[existingIndex].entorno, Tablasimbolos_1.globalMap[existingIndex].fila, Tablasimbolos_1.globalMap[existingIndex].columna);
         }
-        throw Error("Variable no existente");
+        throw Tablasimbolos_2.lerrores.push(new Tablasimbolos_2.errores(fila, columna, "Semantico", `Vector ${id} no declarado`));
         // Si se encuentra, actualizar su valor
     }
     guardarFuncion(id, funcion) {
-        //TODO ver si la funcion ya existe, reportar error
+        let env = this;
+        if (env.funciones.has(id)) {
+            throw Tablasimbolos_2.lerrores.push(new Tablasimbolos_2.errores(funcion.line, funcion.column, "Semantico", `Funcion ${id} declarado anteriormente`));
+        }
+        else if (env.arreglos.has(id)) {
+            throw Tablasimbolos_2.lerrores.push(new Tablasimbolos_2.errores(funcion.line, funcion.column, "Semantico", `Arreglo ${id} declarado anteriormente`));
+        }
+        else if (env.variables.has(id)) {
+            throw Tablasimbolos_2.lerrores.push(new Tablasimbolos_2.errores(funcion.line, funcion.column, "Semantico", `Variable ${id} declarada anteriormente`));
+        }
         this.funciones.set(id, funcion);
     }
     getVariable(id) {

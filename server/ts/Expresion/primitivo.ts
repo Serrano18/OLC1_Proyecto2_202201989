@@ -1,6 +1,6 @@
 import { Expresion } from "../Abstract/expresion";
 import { TipoDato, Resultado } from "../Abstract/resultado";
-
+import { createEdge,createNodeColor } from "../graphivz/graphviz";
 export class Primitivo extends Expresion{
     exp1:string;
     tipo: TipoDato;
@@ -14,9 +14,9 @@ export class Primitivo extends Expresion{
     interpretar(): Resultado {
         // Ejecutamos los noterminales
         // Comparamos el tipo
-        if (TipoDato.NUMBER == this.tipo || TipoDato.DOUBLE == this.tipo){
-            //Convertimos el tipo para que al ejecutar el valor ya tenga el tipo correcto
-            //con this.tipo no nos preocupamos en verificar si es number o double
+        if (TipoDato.NUMBER == this.tipo){
+            return {valor:Number(this.exp1), tipo:this.tipo}
+        }else if(TipoDato.DOUBLE == this.tipo){
             return {valor:Number(this.exp1), tipo:this.tipo}
         }else if(TipoDato.BOOLEANO == this.tipo) {
             return {valor:this.exp1.toLowerCase()=="true"?true:false, tipo:this.tipo}
@@ -28,5 +28,29 @@ export class Primitivo extends Expresion{
 
         // en caso que no sea ninguno
         return {valor:null,tipo:TipoDato.NULO}
+    }
+
+    public crearGrafico(parent: any) {
+        let color = ""
+        switch(this.tipo){
+            case TipoDato.NUMBER:
+                color = "blue";
+                break;
+            case TipoDato.DOUBLE:
+                color = "gold"
+                break
+            case TipoDato.BOOLEANO:
+                color = "green"
+                break
+            case TipoDato.STRING:
+                color = "orange"
+                break
+            case TipoDato.CHAR:
+                color = "red"
+                break
+            default:
+                break;
+        }
+        createEdge(parent,createNodeColor(`${this.exp1}`, color))
     }
 }

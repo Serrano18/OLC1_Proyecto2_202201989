@@ -10,11 +10,12 @@ export enum TipoDato{
     BOOLEANO = 2,
     CHAR = 3,
     STRING = 4,
+    ID = 5,
     NULO,
 }
 
 export enum OpAritmetica{
-    SUMA, RESTA, PRODUCTO,DIVISION,MOD,POW
+    SUMA, RESTA, PRODUCTO,DIVISION,MOD,POW,UNARIA
 }
 
 export enum OpRelacional{

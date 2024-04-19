@@ -9,7 +9,7 @@ export class Symbol{
     public type2:string;
 
     constructor(id: string, type: TipoDato, value: any,type2:string,fila:number,columna:number) {
-        this.id = id;
+        this.id = id.toLowerCase();
         this.type = type;
         this.type2 = type2
         this.value = value;

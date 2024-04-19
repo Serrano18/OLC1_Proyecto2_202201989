@@ -34,6 +34,10 @@
     const {Vvector}= require("../js/Expresion/valoresvector");
     const {Avector} = require("../js/Instruccion/avector");
     const {Cstr} = require("../js/Expresion/cstr");
+    const {Function} = require("../js/Instruccion/declafuncion");
+    const {Vfuncion} = require("../js/Instruccion/valoresfuncion");
+    const {Execute} = require("../js/Instruccion/execute");
+    const {Return} = require("../js/Instruccion/return");
 %}
 %lex // Inicia parte léxica
 
@@ -44,7 +48,7 @@
 \s+                                 //ignora espacios
 [\t\r\n\f]+    //ignora espacios
 "//".*           {/*Comentario de una linea*/}     
-[/][*][^]*[*]+([^/*][^*]*[*]+)*[/]        /* Ignorar comentarios multilinea */
+[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]        /* Ignorar comentarios multilinea */
 
 [0-9]+("."[0-9]+)\b     return 'DOUBLE';
 [0-9]+\b                return 'NUMBER';
@@ -85,6 +89,10 @@
 "switch"                return 'SWITCH';
 "case"                  return 'CASE';
 "default"               return 'DEFAULT';
+//Execute
+"execute"               return 'EXECUTE';
+//FUNCIONES
+"void"                   return 'VOID';
 // signos
 "("                     return 'PARIZQ';
 ")"                     return 'PARDER';
@@ -136,9 +144,9 @@
 
 %right 'TIPOD'
 %right 'SADM'
-%right 'NOT'
 %left 'OR'
 %left 'AND'
+%right 'NOT'
 %left 'IGUAL','DISTINTO','MENOR','MENORIGUAL','MAYOR','MAYORIGUAL'
 %left 'MAS', 'RES'
 %left 'MUL','DIV','MOD'
@@ -169,20 +177,67 @@ instruccion:
             |fn_while                   { $$ = $1;}
             |fn_for                     { $$ = $1;}
             |fn_switch                  { $$ = $1;}
+            |RETURN expresion PYC       {$$ = new Return($2,@1.first_line,@1.first_column);}
+            |RETURN PYC                 {$$ = new Return(null,@1.first_line,@1.first_column);}
             |BREAK PYC                  {$$ = new Break(@1.first_line,@1.first_column);}
             |CONTINUE PYC               {$$ = new Continue(@1.first_line,@1.first_column);}  
             | declaracioVectores  PYC      {$$ = $1;}
             |modivectores    PYC        {$$ = $1;}
-            //|error PYC                  {console.log("Error sintactico en la Linea: " + this._$.first_line + " en la Columna: " + this._$.first_column);}
+            |fn_funciones            {$$ = $1;}
+            |metodos                 {$$ = $1;}
+            |fn_execute  PYC            {$$ = $1;}
+            |ll_instruccion PYC     {$$ = $1;}
+            |error PYC                  {console.log("Error sintactico en la Linea: " + this._$.first_line + " en la Columna: " + this._$.first_column);}
+            |error LLAVEDER                 {console.log("Error sintactico en la Linea: " + this._$.first_line + " en la Columna: " + this._$.first_column);}
             ;
+fn_execute: 
+        EXECUTE ll_expresion {$$ = new Execute($2,@1.first_line,@1.first_column);}
+
+;
+fn_funciones:
+        TIPOD ID PARIZQ lista_parametros PARDER bloque {$$ = new Function($2,$1,$4,$6,@1.first_line,@1.first_column);}
+;
+
+metodos:
+        VOID ID PARIZQ lista_parametros PARDER bloque {$$ = new Function($2,$1,$4,$6,@1.first_line,@1.first_column);}
+;
+lista_parametros
+       :   parametros {$$ = $1;}   
+       |   {$$ = [];}
+;
+
+parametros:
+        parametros CM forma_parametros {$1.push($3); $$ = $1;}
+        |forma_parametros {$$ = [$1];}
+;
+forma_parametros:
+        TIPOD ID        {$$ = {tipo:$1, id:$2, vect:false,vsimple:false };}
+        |TIPOD ID CORIZQ CORDER {$$ = {tipo:$1, id:$2, vect:true,vsimple:true };}
+        |TIPOD ID CORIZQ CORDER CORIZQ CORDER  {$$ = {tipo:$1, id:$2, vect:true,vsimple:false};}
+;
+ll_expresion:
+        ID PARIZQ pllamadas PARDER {$$ = new Vfuncion($1,$3,true,@1.first_line,@1.first_column);}
+;
+ll_instruccion:
+        ID PARIZQ pllamadas PARDER {$$ = new Vfuncion($1,$3,false,@1.first_line,@1.first_column);}
+;
+pllamadas
+        : {$$ = [];}
+        |listado_pllamadas {$$ = $1;}
+        
+;
+listado_pllamadas:
+        listado_pllamadas CM expresion {$1.push($3); $$ = $1;}
+        |expresion {$$ = [$1];}
+;
 modivectores:
          ID CORIZQ expresion CORDER ASIGNACION expresion {$$ = new Avector($1,$3,null,$6,@1.first_line,@1.first_column);}
         | ID CORIZQ expresion CORDER CORIZQ expresion CORDER ASIGNACION expresion  {$$ = new Avector($1,$3,$6,$9,@1.first_line,@1.first_column);}
         
 ;
 declaracioVectores:
-     TIPOD  ID CORIZQ CORDER ASIGNACION NEW TIPOD CORIZQ expresion CORDER               {$$ = new Dvectores($1,$2,$7,$9,null,@1.first_line,@1.first_column);}
-     |TIPOD ID CORIZQ CORDER CORIZQ CORDER ASIGNACION NEW TIPOD CORIZQ expresion CORDER CORIZQ expresion CORDER   {$$ = new Dvectores($1,$2,$9,$11,$14,@1.first_line,@1.first_column);}
+     TIPOD  ID CORIZQ CORDER ASIGNACION NEW TIPOD CORIZQ expresion CORDER               {$$ = new Dvectores(true,$1,$2,$7,$9,null,@1.first_line,@1.first_column);}
+     |TIPOD ID CORIZQ CORDER CORIZQ CORDER ASIGNACION NEW TIPOD CORIZQ expresion CORDER CORIZQ expresion CORDER   {$$ = new Dvectores(false,$1,$2,$9,$11,$14,@1.first_line,@1.first_column);}
      | TIPOD ID CORIZQ CORDER ASIGNACION repeti                                         {$$ = new Dvectores2($1,$2,true,$6,@1.first_line,@1.first_column);}
      |TIPOD ID CORIZQ CORDER CORIZQ CORDER ASIGNACION CORIZQ valores CORDER             {$$ = new Dvectores2($1,$2,false,$9,@1.first_line,@1.first_column);}
 ;
@@ -212,10 +267,10 @@ caselista :
         | cases                 { $$ =  [$1];}
 ;
 cases:
-        CASE expresion DP instrucciones {$$ = new Case($2,$4,@1.first_line,@1.first_column)}
+        CASE expresion DP instrucciones {$$ = new Case($2,$4,@1.first_line,@1.first_column);}
 ;
 fn_default:
-        DEFAULT DP instrucciones        {$$ = new Default($3,@1.first_line,@1.first_column)}
+        DEFAULT DP instrucciones        {$$ = new Default($3,@1.first_line,@1.first_column);}
         |
 ;
 variables:
@@ -236,7 +291,7 @@ fn_dowhile
         : DO bloque WHILE PARIZQ expresion PARDER {$$ = new Dowhile($5,$2,@1.first_line,@1.first_column);}
 ;
 // Para sitetisar un dato, se utiliza $$
-expresion: RES expresion %prec UMINUS                   { $$ = new Aritmetica(new Primitivo(0,0,0),$2,OpAritmetica.RESTA,@1.first_line,@1.first_column);} 
+expresion: RES expresion %prec UMINUS                   { $$ = new Aritmetica($2,$2,OpAritmetica.UNARIA,@1.first_line,@1.first_column);} 
         | expresion MAS expresion                       { $$ = new Aritmetica($1,$3,OpAritmetica.SUMA,@2.first_line,@2.first_column);}
         | expresion RES expresion                       { $$ = new Aritmetica($1,$3,OpAritmetica.RESTA,@2.first_line,@2.first_column);}
         | expresion MUL expresion                       { $$ =  new Aritmetica($1,$3,OpAritmetica.PRODUCTO,@2.first_line,@2.first_column);}
@@ -263,13 +318,14 @@ expresion: RES expresion %prec UMINUS                   { $$ = new Aritmetica(ne
         | TYPEOF PARIZQ expresion PARDER                {$$ = new Typeof($3,@1.first_line,@1.first_column);} 
         | ID CORIZQ expresion CORDER                    {$$ = new Vvector($1,$3,null,@1.first_line,@1.first_column);}
         | ID CORIZQ expresion CORDER CORIZQ expresion CORDER        {$$ = new Vvector($1,$3,$6,@1.first_line,@1.first_column);}
+        | ll_expresion                                  {$$ = $1;}
         
 ;
 
 
-//actualizar vALORES
+//actualizar vALORES   
 avariables
-        :ID ASIGNACION expresion                        {$$ = new Avariable($1,$3,@1.first_line,@1.first_column)}
+        :ID ASIGNACION expresion                        {$$ = new Avariable($1,$3,@1.first_line,@1.first_column);}
 ;
 //Incremento y Decremento
 subebaja
@@ -288,7 +344,7 @@ relacionales
 logicos
         : expresion AND expresion       { $$ =  new Logico($1,$3,OpLogico.AND,@2.first_line,@2.first_column);}
         | expresion OR  expresion       { $$ =  new Logico($1,$3,OpLogico.OR,@2.first_line,@2.first_column);}
-        | NOT expresion                 { $$ =  new Logico(null,$2,OpLogico.NOT,@1.first_line,@1.first_column);}
+        | NOT expresion                 { $$ =  new Logico($2,$2,OpLogico.NOT,@1.first_line,@1.first_column);}
 ;
 //Declaracion variables
 fn_dvariables:
@@ -306,7 +362,7 @@ findeclaracion
 
 //PARA PODER IMPRIMIR
 fn_cout: COUT '<<' expresion  { $$ = new Cout($3,false,@1.first_line,@1.first_column);}
-        | COUT '<<' expresion '<<' SALTOCOUT { $$ = new Cout($3,true,@1.first_line,@1.first_column)}
+        | COUT '<<' expresion '<<' SALTOCOUT { $$ = new Cout($3,true,@1.first_line,@1.first_column);}
 ;
 
 

@@ -2,7 +2,8 @@ import { Instruccion } from "../Abstract/instruccion";
 import { Expresion } from "../Abstract/expresion";
 import { TipoDato } from "../Abstract/resultado";
 import { Environment } from "../Symbol/Evironment";
-import { Vector } from "../Symbol/vector";
+import { lerrores,errores } from "../Tablasimbolos";
+import { createEdge,createNode } from "../graphivz/graphviz";
 //Esta es para la declaracion tipo1 de vectores
 export class Dvectores extends Instruccion{
     public tipo:string
@@ -10,21 +11,54 @@ export class Dvectores extends Instruccion{
     public confirTipoDato : string
     public nfila:Expresion 
     public ncol:Expresion | null
-    constructor(tipo:string,id:string,confirTipoDato : string,nfila:Expresion,ncol:Expresion | null,line:number,column:number){
+    public estado:boolean
+    constructor(estado:boolean,tipo:string,id:string,confirTipoDato : string,nfila:Expresion,ncol:Expresion | null,line:number,column:number){
         super(line,column,);
         this.tipo = tipo;
-        this.id = id;
+        this.id = id.toLowerCase();
         this.confirTipoDato = confirTipoDato;
         this.nfila = nfila;
         this.ncol=ncol
+        this.estado = estado
+    }public crearGrafico(padre: any){
+    const nodoPadre = createNode('Declaración Vector');
+    createEdge(padre, nodoPadre);
+
+    const nodoTipo = createNode(this.tipo);
+    createEdge(nodoPadre, nodoTipo);
+
+    const nodoId = createNode(this.estado ? `${this.id}[]` : `${this.id}[][]`);
+    createEdge(nodoPadre, nodoId);
+
+    const nodoAsignacion = createNode('=');
+    createEdge(nodoPadre, nodoAsignacion);
+
+    const nodoNuevo = createNode('new');
+    createEdge(nodoPadre, nodoNuevo);
+
+    const nodoTipo2 = createNode(this.confirTipoDato);
+    createEdge(nodoPadre, nodoTipo2);
+
+    const nodoExpresion = createNode('Expresion');
+    createEdge(nodoPadre, nodoExpresion);
+    this.nfila.crearGrafico(nodoExpresion);
+
+    if (this.ncol != null){
+        const nodoExpresion2 = createNode('Expresion');
+        createEdge(nodoPadre, nodoExpresion2);
+        this.ncol.crearGrafico(nodoExpresion2);
     }
-    public interpretar(entorno : Environment,consola:string[]):any{
+
+    const nodoPuntoComa = createNode(';');
+    createEdge(nodoPadre, nodoPuntoComa);
+}
+    public interpretar(entorno : Environment):any{
         if(this.tipo != this.confirTipoDato){
-            throw new Error("Ya valio jajaja")
+            throw lerrores.push(new errores(this.line, this.column, "Semantico", `Tipo de dato ${this.tipo} no coinciden con el valor asignado`));
         }
         let dtipo:TipoDato;
         let valordefecto : any;
-        switch(this.tipo.toString()){
+        switch(this.tipo.toLowerCase()){
             case "int":
                 dtipo = TipoDato.NUMBER;
                 valordefecto = Number(0);
@@ -46,23 +80,21 @@ export class Dvectores extends Instruccion{
                 valordefecto = true;
                 break
             default:
-                throw new Error('Error: Tipo de dato invalido');
+                throw lerrores.push(new errores(this.line, this.column, "Semantico", `Tipo de dato ${this.tipo} no valido`));
         
         }
         const numfila = this.nfila.interpretar(entorno)
         if(this.ncol != null){
             const numcol = this.ncol.interpretar(entorno)
             if(numfila.tipo != TipoDato.NUMBER || numcol.tipo != TipoDato.NUMBER){
-                throw new Error ("No es un numero")
-
+              throw lerrores.push(new errores(this.line, this.column, "Semantico", `Tipo de dato ${numfila.tipo} no es entero`));
             }
             entorno.guardarVector(this.id,dtipo,numfila.valor,numcol.valor,this.line,this.column)
             entorno.obtenerVector(this.id)?.llenarpordefecto(this.id,valordefecto,dtipo,this.line,this.column) 
             entorno.guardarVectorTablaSimbolos(this.id, dtipo,entorno.obtenerVector(this.id),numfila.valor,numcol.valor,this.line,this.column,entorno);
         }else{
             if(numfila.tipo != TipoDato.NUMBER){
-                throw new Error ("No es un numero")
-
+                throw lerrores.push(new errores(this.line, this.column, "Semantico", `Tipo de dato ${numfila.tipo} no es entero`));
             }
             entorno.guardarVector(this.id,dtipo,numfila.valor,1,this.line,this.column)
             entorno.obtenerVector(this.id)?.llenarpordefecto(this.id,valordefecto,dtipo,this.line,this.column) 

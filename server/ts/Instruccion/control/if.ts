@@ -3,6 +3,8 @@ import { TipoDato } from "../../Abstract/resultado";
 import { Bloque } from "../bloque";
 import { Instruccion } from "../../Abstract/instruccion";
 import { Environment } from "../../Symbol/Evironment";
+import { lerrores,errores } from "../../Tablasimbolos";
+import { createNode,createEdge } from "../../graphivz/graphviz";
 export class FN_IF extends Instruccion{
     condicion: Expresion
     bloqueIf: Bloque
@@ -14,17 +16,20 @@ export class FN_IF extends Instruccion{
         this.bloqueIf = bloqueIf
         this.bloqueElse  = bloqueElse
     }
+    
+    public crearGrafico(padre: any) {
+        return ""
+    }
 
-    public interpretar(entorno : Environment,consola: string[]): any {
+    public interpretar(entorno : Environment): any {
         const condicion = this.condicion.interpretar(entorno)
         if (condicion.tipo!=TipoDato.BOOLEANO)
-            throw Error("La condición no es booleana")
+            throw lerrores.push(new errores(this.line, this.column, "Semantico", `La condicion no es booleana.`));
         if (condicion.valor){
-            return this.bloqueIf.interpretar(entorno,consola)
-        }else{
-            console.log("else")
-            console.log({else:this.bloqueElse})
-            return this.bloqueElse.interpretar(entorno,consola)
+            return this.bloqueIf.interpretar(entorno)
+        }else if(this.bloqueElse != null){
+            return this.bloqueElse.interpretar(entorno)
         }
+        return null
     }
 }

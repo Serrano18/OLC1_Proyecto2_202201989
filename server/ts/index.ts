@@ -1,23 +1,26 @@
 import { Request, Response } from "express"
 import { exec } from "child_process"
-import { errores } from './Errores';
-import { Error_ } from "./Error";
-import { globalMap,vaciarGlobalMap} from "./Tablasimbolos";
+import { globalMap,vaciarGlobalMap,vaciarconsola,vaciarlerrores,lerrores} from "./Tablasimbolos";
+import { crearGrafico,createNode,save } from "./graphivz/graphviz";
 const parser = require("../Gramatica/gramatica")
-
+const path = require('path');
 function interprete(contenido:string){
+    let raiz = createNode("Raiz")
     try {
         vaciarGlobalMap()
+        vaciarconsola()
+        vaciarlerrores()
         const ast = parser.parse(contenido)
-        ast.Ejecutar()    
+        ast.Ejecutar() 
+        ast.crearGrafico(raiz)   
         console.log("Análisis finalizado 2")
-        console.log(globalMap)
         return ast.getConsola()
+       
     } catch (e) {
-        return e;
+        return "Error1: " + e;
     
     }
-
+ 
 }
 
 const express = require('express')
@@ -31,16 +34,23 @@ app.use(express.json())
 app.post('/interpretar', (req:Request, res:Response) => {
   const contenido = req.body.contenido
   console.log(contenido)
-  const interpretado = interprete(contenido.toLowerCase())
+  const interpretado = interprete(contenido)
   res.send(interpretado)
 })
 app.get('/globalmap', (req: Request, res: Response) => {
   res.send(globalMap); // Envía globalMap
 });
+app.get('/errores', (req: Request, res: Response) => {
+  res.send(lerrores); // Envía lista errores
+});
 app.get('/', (req:Request, res:Response) => {
 
     res.send("Esta Funcionando")
 })
+
+app.get('/graph', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'graphviz.png')); // Envía el archivo de gráfico
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

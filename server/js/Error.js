@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Error_ = void 0;
-class Error_ {
+exports.errores = void 0;
+class errores {
     constructor(linea, columna, tipo, mensaje) {
         this.linea = linea;
         this.columna = columna;
@@ -9,4 +9,4 @@ class Error_ {
         this.mensaje = mensaje;
     }
 }
-exports.Error_ = Error_;
+exports.errores = errores;

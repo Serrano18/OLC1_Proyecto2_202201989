@@ -1,5 +1,7 @@
 import { Instruccion } from "../Abstract/instruccion";
 import { Environment } from "../Symbol/Evironment";
+
+import { createEdge,createNode } from "../graphivz/graphviz";
 export class Bloque extends Instruccion{
     instrucciones: Instruccion[]
 
@@ -7,18 +9,31 @@ export class Bloque extends Instruccion{
         super(fila,columna)
         this.instrucciones = instrucciones
     }
-
-    public interpretar(entorno : Environment, consola: string[]): any {
+    public crearGrafico(padre: any){
+        const nodoLlaveAbierta = createNode('{');
+        createEdge(padre, nodoLlaveAbierta);
+    
+        for (const instruccion of this.instrucciones) {
+            instruccion.crearGrafico(padre);
+        }
+    
+        const nodoLlaveCerrada = createNode('}');
+        createEdge(padre, nodoLlaveCerrada);
+    }
+    public interpretar(entorno : Environment): any {
         const newEntorno:Environment = new Environment(entorno)
         for (const instruct of this.instrucciones){
             try{
-                const elemento = instruct.interpretar(newEntorno,consola)
+                const elemento = instruct.interpretar(newEntorno)
                 if(elemento != null || elemento != undefined){
-                    return elemento
+                    if(elemento == 'continue' )  {
+                            continue;
+                    }
+                    return elemento;
                 }
             }catch(error){
-                console.log(error)
-            };
+                console.log(error);
+            }
  
         }
        return null;

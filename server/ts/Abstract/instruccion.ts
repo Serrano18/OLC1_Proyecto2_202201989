@@ -1,4 +1,5 @@
 import { Environment } from "../Symbol/Evironment";
+import { NodoAst } from "./NodoAst";
 export abstract class  Instruccion{
     public line: number;
     public column: number; 
@@ -8,6 +9,6 @@ export abstract class  Instruccion{
         this.column = colum;
     }
     // Método que siempre debe ejecutarse en todos los objetos que hereda
-    public abstract interpretar(environment : Environment,consola:string[]):any;
-        
+    public abstract interpretar(environment : Environment):any;
+    public abstract crearGrafico(parent:any):any;   
  }
