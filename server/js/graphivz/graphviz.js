@@ -31,8 +31,11 @@ function createEdge(parent, child) {
 }
 exports.createEdge = createEdge;
 function save() {
+    const outputPath = 'C:\Users\evams\Documents\OLC1_Proyecto2_202201989\server/graphviz.png';
     graph.setGraphVizPath("./");
     // Generate a PNG output
-    graph.output("png", "graphviz.png");
+    graph.output("png", 'graphviz');
+    console.log(outputPath);
+    return outputPath;
 }
 exports.save = save;

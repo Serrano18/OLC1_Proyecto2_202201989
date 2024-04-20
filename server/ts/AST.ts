@@ -21,6 +21,7 @@ export class AST {
     }
 
     public Ejecutar(){
+        
         consola.length = 0
        // Primera pasada
        this.instrucciones.forEach(instruccion => {

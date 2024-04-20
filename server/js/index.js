@@ -9,7 +9,6 @@ function interprete(contenido) {
     try {
         (0, Tablasimbolos_1.vaciarGlobalMap)();
         (0, Tablasimbolos_1.vaciarconsola)();
-        (0, Tablasimbolos_1.vaciarlerrores)();
         const ast = parser.parse(contenido);
         ast.Ejecutar();
         ast.crearGrafico(raiz);
@@ -41,8 +40,12 @@ app.get('/errores', (req, res) => {
 app.get('/', (req, res) => {
     res.send("Esta Funcionando");
 });
+app.get('/vaciar', (req, res) => {
+    (0, Tablasimbolos_1.vaciarlerrores)();
+});
 app.get('/graph', (req, res) => {
-    res.sendFile(path.join(__dirname, 'graphviz.png')); // Envía el archivo de gráfico
+    (0, graphviz_1.save)();
+    res.sendFile(path.join(__dirname, '../graphviz.png')); // Envía el archivo de gráfico
 });
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);

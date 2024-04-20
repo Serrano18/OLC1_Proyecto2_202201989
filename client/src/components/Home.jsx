@@ -12,6 +12,22 @@ export function Home(){
   const [lerrores, setLerrores] = useState([]);
   const [showPDF, setShowPDF] = useState(false); 
   const [abrirTe, setAbrirTe] = useState(false); 
+  const [abrirAST, setAbrirAST] = useState(false); 
+  const [graphImage, setGraphImage] = useState(null);
+
+const fetchGraphImage = async () => {
+  try {
+    const response = await axios.get('http://localhost:3000/graph', { responseType: 'arraybuffer' });
+    const blob = new Blob([response.data], { type: 'image/png' });
+    const url = URL.createObjectURL(blob);
+    setShowPDF(false)
+    setAbrirTe(false)
+    setAbrirAST(true)
+    setGraphImage(url);
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 const styles = StyleSheet.create({
     page: {
@@ -46,6 +62,7 @@ const styles = StyleSheet.create({
     const saveFile =  () =>{
       setShowPDF(false);
       setAbrirTe(false);
+      setAbrirAST(false);
       const fileName = window.prompt("Por favor, ingrese el nombre del archivo:", "archivo.sc");
       if(fileName) {
           const blob = new Blob([myvalue], {type: 'text/plain;charset=utf-8'});
@@ -59,15 +76,18 @@ const styles = StyleSheet.create({
     };
     const handleButtonClick = () => {
       setAbrirTe(false);
+      setAbrirAST(false);
       TablaSimbolos(); // Llama a la función TablaSimbolos al hacer clic en el botón
   };
   const botonerrores = () => {
     setShowPDF(false);
+    setAbrirAST(false);
     TablaErrores(); 
   };
     const readFile=(e)=> {
       setShowPDF(false);
       setAbrirTe(false);
+      setContenido('');
       const file = e.target.files[0];
       if ( !file ) return;
 
@@ -91,11 +111,14 @@ const styles = StyleSheet.create({
       }
     }
 
-    const createBlankFile = () => {
+    const createBlankFile = async () => {
         setMyValue('');
         setContenido('');
         setShowPDF(false);
         setAbrirTe(false);
+        setAbrirAST(false);
+        await axios.get('http://localhost:3000/vaciar');
+        
       };
       
       const TablaSimbolos = async () => {
@@ -104,6 +127,8 @@ const styles = StyleSheet.create({
             await setGlobalMap(response.data) 
             await console.log("GlobalMap: ",globalMap)
             await setShowPDF(true);
+            setAbrirAST(false);
+            setAbrirTe(false);
         } catch (error) {
             console.error(error);
         }
@@ -111,17 +136,21 @@ const styles = StyleSheet.create({
 
     const TablaErrores = async () => {
       try {
+        
           const response = await axios.get('http://localhost:3000/errores');
           await setLerrores(response.data) 
+          await console.log(response.data)
           await setAbrirTe(true);
+          setAbrirAST(false);
+          setShowPDF(false);
       } catch (error) {
           console.error(error);
       }
   };
     const Ejecutar = () => {
-   
        setShowPDF(false);
        setAbrirTe(false);
+       setAbrirAST(false);
         console.log(myvalue);
         setContenido('');
         fetch("http://localhost:3000/interpretar", {
@@ -141,6 +170,12 @@ const styles = StyleSheet.create({
       .catch(error => console.error(error));
 
     }
+    const ImageDisplay = ({ image }) => (
+      <div className="contenedor">
+        <h2>Arbol AST</h2>
+        {image && <img src={image} alt="Gráfico" />}
+      </div>
+    );
     const PDFGenerator2 = ({data}) => (
       <div className="contenedor2">
         <h2>Tabla de Errores</h2>
@@ -160,7 +195,7 @@ const styles = StyleSheet.create({
                   <td>{index+1}</td>
                   <td>{item.tipo}</td>
                   <td>{item.mensaje}</td>
-                  <td>{item.fila}</td>
+                  <td>{item.linea}</td>
                   <td>{item.columna}</td>
                 </tr>
               ))}
@@ -263,7 +298,7 @@ const styles = StyleSheet.create({
           <li><a onClick={saveFile}>Guardar archivo</a></li>
           <li><a onClick={Ejecutar}>Ejecutar</a></li>
           <li><a onClick={botonerrores}>Reporte de Errores</a></li>
-          <li><a href="#">Generar Árbol AST</a></li>
+          <li><a onClick={fetchGraphImage}>Generar Árbol AST</a></li>
           <li><a onClick={handleButtonClick}>Reporte de Tabla de Símbolos</a> </li>
         </ul>
       </nav> 
@@ -292,6 +327,7 @@ const styles = StyleSheet.create({
               </div>
               {showPDF && <PDFGenerator data={globalMap} />} {/* Mostrar el PDF si showPDF es true */}
               {abrirTe && <PDFGenerator2 data={lerrores} />} {/* Mostrar el PDF si showPDF es true */}
+              {abrirAST && <ImageDisplay image={graphImage} />}
         </>
     )
 }

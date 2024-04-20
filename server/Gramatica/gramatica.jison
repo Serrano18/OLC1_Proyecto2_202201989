@@ -38,6 +38,8 @@
     const {Vfuncion} = require("../js/Instruccion/valoresfuncion");
     const {Execute} = require("../js/Instruccion/execute");
     const {Return} = require("../js/Instruccion/return");
+    const {lerrores} = require("../js/Tablasimbolos");
+    const {errores} = require("../js/Tablasimbolos");
 %}
 %lex // Inicia parte léxica
 
@@ -135,7 +137,10 @@
 
 <<EOF>>                 return 'EOF';
 
-.	        			   {    console.log(yylloc.first_line, yylloc.first_column,'Lexico',yytext);    }
+.	        			   {    console.log(yylloc.first_line, yylloc.first_column,'Lexico',yytext);   
+                                               lerrores.push(new errores(yylloc.first_line, yylloc.first_column, "Lexico", `Caracter no reconocido: ${yytext}`));
+                                             
+                                           }
 
 // Finaliza parte de Léxica
 /lex
@@ -187,8 +192,13 @@ instruccion:
             |metodos                 {$$ = $1;}
             |fn_execute  PYC            {$$ = $1;}
             |ll_instruccion PYC     {$$ = $1;}
-            |error PYC                  {console.log("Error sintactico en la Linea: " + this._$.first_line + " en la Columna: " + this._$.first_column);}
-            |error LLAVEDER                 {console.log("Error sintactico en la Linea: " + this._$.first_line + " en la Columna: " + this._$.first_column);}
+            |error PYC                  {console.log("Error sintactico en la Linea: " + this._$.first_line + " en la Columna: " + this._$.first_column);
+                                        lerrores.push(new errores(this._$.first_line, this._$.first_column, "Sintactico", `No se esperaba el token ${yytext} `));}
+            
+
+            |error LLAVEDER                 {console.log("Error sintactico en la Linea: " + this._$.first_line + " en la Columna: " + this._$.first_column);
+                                             lerrores.push(new errores(this._$.first_line, this._$.first_column, "Sintactico", `No se esperaba el token ${yytext} `));}
+            
             ;
 fn_execute: 
         EXECUTE ll_expresion {$$ = new Execute($2,@1.first_line,@1.first_column);}
